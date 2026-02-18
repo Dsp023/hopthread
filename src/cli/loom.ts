@@ -9,15 +9,15 @@ const version = "0.0.1-alpha";
 const program = new Command();
 
 program
-  .name("anyatheard")
-  .description(chalk.blue("🌒 Anyatheard CLI - The Loom of Execution"))
+  .name("hopthread")
+  .description(chalk.blue("🌒 Hopthread CLI - The Loom of Execution"))
   .version(version);
 
 program
   .command("pulse")
-  .description("Check the heartbeat of the Anyatheard system")
+  .description("Check the heartbeat of the Hopthread system")
   .action(() => {
-    console.log(chalk.green("\n🌒 Anyatheard is pulsing..."));
+    console.log(chalk.green("\n🌒 Hopthread is pulsing..."));
     console.log(chalk.dim("----------------------------"));
     console.log(`${chalk.bold("Status:")} Online`);
     console.log(`${chalk.bold("Runtime:")} Bun ${Bun.version}`);

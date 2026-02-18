@@ -1,8 +1,8 @@
 {
-  "name": "anyatheard",
+  "name": "hopthread",
   "module": "index.ts",
   "bin": {
-    "anyatheard": "./src/cli/loom.ts"
+    "hopthread": "./src/cli/loom.ts"
   },
   "type": "module",
   "private": true,

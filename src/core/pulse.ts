@@ -61,7 +61,7 @@ export async function getPulse(prompt: string) {
     let messages: any[] = [
       {
         role: "system",
-        content: "You are the core intelligence of Anyatheard. You have 'hands' (tools) to interact with the system. Use them when needed to fulfill Dsp's requests.",
+        content: "You are the core intelligence of Hopthread. You have 'hands' (tools) to interact with the system. Use them when needed to fulfill Dsp's requests.",
       },
       {
         role: "user",

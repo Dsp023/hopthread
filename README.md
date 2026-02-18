@@ -1,6 +1,6 @@
-# 🌒 Anyatheard
+# 🌒 Hopthread
 
-**Anyatheard** is a high-fidelity, agentic AI framework built for the next generation of digital ecosystems. It is designed to be the "thread" that connects intelligent thought (LLMs) to technical execution (System/OS).
+**Hopthread** is a high-fidelity, agentic AI framework built for the next generation of digital ecosystems. It is designed to be the "thread" that connects intelligent thought (LLMs) to technical execution (System/OS).
 
 Built with **Bun** for ultra-fast performance and **Groq** for high-velocity intelligence.
 
@@ -8,7 +8,7 @@ Built with **Bun** for ultra-fast performance and **Groq** for high-velocity int
 
 ## 🏗️ Architecture
 
-Anyatheard is structured into three core modules:
+Hopthread is structured into three core modules:
 
 1.  **The Loom (CLI):** The command-line interface where threads are spun.
 2.  **The Pulse (AI Brain):** The core agentic loop powered by Groq (Llama-3.3-70B) with native function-calling capabilities.
@@ -26,8 +26,8 @@ Anyatheard is structured into three core modules:
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/Dsp023/Anyatheard.git
-    cd Anyatheard
+    git clone https://github.com/Dsp023/hopthread.git
+    cd hopthread
     ```
 
 2.  **Install dependencies:**
@@ -50,7 +50,7 @@ Anyatheard is structured into three core modules:
 
 ## 🧶 Usage
 
-You interact with Anyatheard through **The Loom**.
+You interact with Hopthread through **The Loom**.
 
 ### Check System Pulse
 ```bash
@@ -58,7 +58,7 @@ bun run ./src/cli/loom.ts pulse
 ```
 
 ### Weave an Autonomous Task
-This command initiates the agentic loop. Anyatheard will think, decide which tools to use, and execute them automatically.
+This command initiates the agentic loop. Hopthread will think, decide which tools to use, and execute them automatically.
 
 ```bash
 bun run ./src/cli/loom.ts weave "List the files in this directory and create a summary.txt with the count"
@@ -68,7 +68,7 @@ bun run ./src/cli/loom.ts weave "List the files in this directory and create a s
 
 ## 🖐️ The Hand (Tools)
 
-Anyatheard currently has the following capabilities:
+Hopthread currently has the following capabilities:
 - **execute_shell:** Run any bash/cmd command.
 - **write_file:** Create or modify local files.
 - **read_file:** Ingest local file data for analysis.
@@ -78,7 +78,7 @@ Anyatheard currently has the following capabilities:
 ## 🛠️ Roadmap
 - [ ] **The Echo:** Implement RAG-based long-term memory.
 - [ ] **Specialists:** Pre-configured agent personas for specific stacks (React, Python, DevOps).
-- [ ] **Web Integration:** Allow Anyatheard to fetch and analyze live URLs.
+- [ ] **Web Integration:** Allow Hopthread to fetch and analyze live URLs.
 
 ---
 
