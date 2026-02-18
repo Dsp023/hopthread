@@ -1,0 +1,1 @@
+Project Summary: Hopthread is a platform that enables users to synthesize codebases and create high-fidelity summaries. Tech Stack: Python, Markdown. Core Logic: Scans directory, analyzes files, and generates briefing.

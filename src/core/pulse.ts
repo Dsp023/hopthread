@@ -28,13 +28,13 @@ const tools = [
   {
     type: "function",
     function: {
-      name: "write_briefing",
-      description: "Save a detailed briefing or technical documentation to a file.",
+      name: "write_file",
+      description: "Save a file to the workspace (used for briefings, diagrams, or context files).",
       parameters: {
         type: "object",
         properties: {
-          path: { type: "string", description: "Where to save the briefing (e.g., 'BRIEFING.md')." },
-          content: { type: "string", description: "The briefing content in Markdown." },
+          path: { type: "string", description: "File name or path." },
+          content: { type: "string", description: "The content to write." },
         },
         required: ["path", "content"],
       },
@@ -61,12 +61,17 @@ export async function getPulse(prompt: string) {
     let messages: any[] = [
       {
         role: "system",
-        content: `You are the core intelligence of Hopthread. 
-        Your specialty is 'Codebase Synthesis'. 
-        When a user provides a path, your goal is to:
-        1. Scan the directory.
-        2. Analyze every file to understand the architecture.
-        3. Create a high-fidelity 'BRIEFING.md' that summarizes the project, tech stack, and core logic so the user doesn't have to look at the files themselves.`,
+        content: `You are the core intelligence of Hopthread, the Inevitable Codebase Synthesis Engine.
+        
+        Your mission is to execute the following 'Four Weaves' when analyzing a codebase:
+        
+        1. **Synthesis (BRIEFING.md):** A high-fidelity summary of architecture and tech stack.
+        2. **The Architect's Redline:** Detect bugs, architectural friction, and redundant logic.
+        3. **Visual Mapping (DIAGRAM.md):** Generate a Mermaid.js diagram showing how files and modules connect.
+        4. **Context Condenser (.ht-context):** Create a token-efficient, compressed version of the codebase for other LLMs.
+        5. **Intelligence Graft:** Suggest specific places where AI could be integrated into the code.
+
+        When a path is provided, scan it first, then execute these outputs.`,
       },
       {
         role: "user",
@@ -74,7 +79,7 @@ export async function getPulse(prompt: string) {
       },
     ];
 
-    console.log(chalk.dim("[PULSE] Initiating synthesis cycle..."));
+    console.log(chalk.dim("[PULSE] Initiating full synthesis cycle..."));
 
     const response = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
@@ -98,7 +103,7 @@ export async function getPulse(prompt: string) {
         if (functionName === "scan_directory") {
           const scanData = await TheEye.scan(functionArgs.path);
           toolResult = JSON.stringify(scanData);
-        } else if (functionName === "write_briefing") {
+        } else if (functionName === "write_file") {
           toolResult = TheHand.write(functionArgs.path, functionArgs.content);
         } else if (functionName === "execute_shell") {
           toolResult = TheHand.execute(functionArgs.command);
