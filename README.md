@@ -1,4 +1,4 @@
-# 🌒 Hopthread
+#  Hopthread
 
 **Hopthread** is a high-fidelity, agentic AI framework built for the next generation of digital ecosystems. It is designed to be the "thread" that connects intelligent thought (LLMs) to technical execution (System/OS).
 
@@ -82,4 +82,4 @@ Hopthread currently has the following capabilities:
 
 ---
 
-Built by **Dsp** & **Anya**. 🌒
+Built by **Dsp** . 
