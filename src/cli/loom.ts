@@ -62,6 +62,13 @@ program
     console.log(chalk.dim("\nThread finalized. [PULSE SUCCESSFUL]\n"));
   });
 
+program
+  .command("ui")
+  .description("Launch the Hopthread Web Dashboard")
+  .action(() => {
+    import("../web/server");
+  });
+
 program.parse(process.argv);
 
 if (!process.argv.slice(2).length) {
