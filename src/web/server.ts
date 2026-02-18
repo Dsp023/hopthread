@@ -11,20 +11,19 @@ const html = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HOPTHREAD | CONSOLE</title>
+    <title>HOPTHREAD | STUDIO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Plus+Jakarta+Sans:wght@200;400;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
 
         :root {
-            --bg: #050505;
-            --text: #e0e0e0;
-            --accent: #3b82f6; /* Technical Blue */
-            --accent-glow: rgba(59, 130, 246, 0.2);
-            --border: #1a1a1a;
-            --terminal: #0a0a0a;
+            --bg: #e0e5ec;
+            --text: #31344b;
+            --accent: #3b82f6;
+            --shadow-light: #ffffff;
+            --shadow-dark: #a3b1c6;
         }
 
         body {
@@ -36,159 +35,99 @@ const html = `
             height: 100vh;
         }
 
-        .mono { font-family: 'JetBrains Mono', monospace; }
-
-        .sidebar {
-            width: 300px;
-            background: var(--terminal);
-            border-right: 1px solid var(--border);
-        }
-
-        .main-view {
+        .skeuo-base {
             background: var(--bg);
-            flex-grow: 1;
+            box-shadow: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light);
+            border-radius: 20px;
         }
 
-        .input-container {
-            background: var(--terminal);
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        .skeuo-inset {
+            background: var(--bg);
+            box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+            border-radius: 15px;
         }
 
-        .input-container:focus-within {
-            border-color: var(--accent);
-            box-shadow: 0 0 15px var(--accent-glow);
+        .skeuo-btn {
+            background: var(--bg);
+            box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .skeuo-btn:active {
+            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+            transform: scale(0.98);
         }
 
         .chat-container {
-            height: calc(100vh - 140px);
-            scrollbar-width: thin;
-            scrollbar-color: #222 transparent;
+            height: calc(100vh - 180px);
+            scrollbar-width: none;
         }
+        .chat-container::-webkit-scrollbar { display: none; }
 
         .message-bubble {
             padding: 1.5rem;
-            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
             opacity: 0;
             transform: translateY(10px);
         }
 
         .ai-icon {
-            background: var(--accent);
-            box-shadow: 0 0 10px var(--accent-glow);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
         }
 
-        .user-icon {
-            background: #333;
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
         }
-
-        .tag {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--accent);
-            font-weight: 700;
-        }
-
-        pre code {
-            font-family: 'JetBrains Mono', monospace;
-            background: #000;
-            display: block;
-            padding: 1rem;
-            border-radius: 8px;
-            border: 1px solid #111;
-            margin-top: 1rem;
-        }
-
-        /* Animations */
-        @keyframes pulse-blue {
-            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-        }
-        .active-pulse { animation: pulse-blue 2s infinite; }
+        .floating { animation: float 4s ease-in-out infinite; }
     </style>
 </head>
-<body class="flex">
-
-    <!-- Sidebar -->
-    <aside class="sidebar hidden md:flex flex-col p-6">
-        <div class="flex items-center gap-3 mb-12">
-            <div class="w-8 h-8 ai-icon rounded-lg flex items-center justify-center">
-                <i data-lucide="thread" class="text-white w-5 h-5"></i>
+<body class="flex flex-col p-4 md:p-8">
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-8 px-4">
+        <div class="flex items-center gap-4">
+            <div class="skeuo-base p-3 floating ai-icon">
+                🧶
             </div>
-            <span class="font-extrabold text-lg tracking-tighter uppercase">Hopthread</span>
-        </div>
-
-        <nav class="space-y-2 flex-grow">
-            <div class="text-[10px] uppercase tracking-widest text-neutral-600 mb-4 font-bold">Workspace</div>
-            <a href="#" class="flex items-center gap-3 p-3 bg-white/5 rounded-xl text-sm font-medium border border-white/5">
-                <i data-lucide="message-square" class="w-4 h-4 text-blue-400"></i> Active Thread
-            </a>
-            <a href="#" class="flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl text-sm font-medium text-neutral-500 transition-colors">
-                <i data-lucide="folder-git-2" class="w-4 h-4"></i> Repository Analysis
-            </a>
-            <a href="#" class="flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl text-sm font-medium text-neutral-500 transition-colors">
-                <i data-lucide="settings" class="w-4 h-4"></i> System Config
-            </a>
-        </nav>
-
-        <div class="mt-auto p-4 bg-blue-500/5 rounded-2xl border border-blue-500/10">
-            <div class="flex items-center gap-2 mb-2">
-                <div class="w-2 h-2 bg-blue-500 rounded-full active-pulse"></div>
-                <span class="text-[10px] font-bold uppercase tracking-widest text-blue-400">Gateway Online</span>
-            </div>
-            <p class="text-[10px] text-neutral-500 font-medium">Node: v22.22.0<br>OS: Linux WSL2</p>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-view flex flex-col">
-        
-        <!-- Header -->
-        <header class="p-6 border-b border-border flex justify-between items-center bg-terminal/50 backdrop-blur-md">
-            <div class="flex items-center gap-4">
-                <i data-lucide="terminal" class="w-4 h-4 text-blue-500"></i>
-                <span class="text-xs font-bold uppercase tracking-widest text-neutral-400">Console / agent:main:main</span>
-            </div>
-            <div class="flex gap-4">
-                <button class="p-2 hover:bg-white/5 rounded-lg text-neutral-500"><i data-lucide="search" class="w-4 h-4"></i></button>
-                <button class="p-2 hover:bg-white/5 rounded-lg text-neutral-500"><i data-lucide="panel-right" class="w-4 h-4"></i></button>
-            </div>
-        </header>
-
-        <!-- Chat -->
-        <div id="chatContainer" class="chat-container overflow-y-auto">
-            <div class="max-w-4xl mx-auto w-full" id="chatList">
-                <!-- Initial Msg -->
-                <div class="message-bubble flex gap-6 ai-msg">
-                    <div class="w-10 h-10 ai-icon rounded-xl flex-shrink-0 flex items-center justify-center">
-                        <i data-lucide="zap" class="text-white w-6 h-6 fill-white"></i>
-                    </div>
-                    <div class="flex-grow">
-                        <div class="tag mb-2">System Initialized</div>
-                        <div class="text-neutral-300 leading-relaxed">
-                            I am Hopthread. Your agentic gateway is active. I have full system access via **The Hand** and **The Eye**. How shall we weave the next thread?
-                        </div>
-                    </div>
-                </div>
+            <div>
+                <h1 class="font-extrabold text-xl tracking-tighter uppercase">Hopthread</h1>
+                <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Skeuo_OS_v0.1</p>
             </div>
         </div>
+        <div class="skeuo-base px-6 py-2 text-[10px] font-bold uppercase tracking-widest">Station: DSP</div>
+    </header>
 
-        <!-- Input -->
-        <div class="p-6 flex justify-center">
-            <div class="input-container w-full max-w-4xl flex items-end p-2 pr-4 rounded-2xl">
-                <textarea id="taskInput" rows="1" class="flex-grow bg-transparent p-4 outline-none text-sm resize-none mono h-14" placeholder="Type a command or ask a question..."></textarea>
-                <div class="flex gap-2 pb-2">
-                     <button class="p-3 text-neutral-600 hover:text-neutral-400"><i data-lucide="paperclip" class="w-5 h-5"></i></button>
-                     <button onclick="weave()" id="weaveBtn" class="p-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-all shadow-lg shadow-blue-900/20">
-                        <i data-lucide="arrow-up" class="w-5 h-5"></i>
-                    </button>
+    <!-- Chat Area -->
+    <main id="chatContainer" class="chat-container flex-grow overflow-y-auto px-2 md:px-12 py-4 flex flex-col items-center">
+        <div class="w-full max-w-4xl" id="chatList">
+            <div class="message-bubble skeuo-base ai-msg flex gap-6 items-start">
+                <div class="skeuo-inset p-3 ai-icon flex-shrink-0">🧶</div>
+                <div class="flex-grow pt-2">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-2">Pulse System</div>
+                    <div class="text-sm font-medium leading-relaxed">The thread is ready. I have fully tactile system access. How shall we weave?</div>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- Input -->
+    <footer class="p-4 flex justify-center">
+        <div class="skeuo-inset w-full max-w-4xl flex items-end p-2 pr-4">
+            <textarea id="taskInput" rows="1" class="flex-grow bg-transparent p-4 outline-none text-sm font-medium resize-none h-14" placeholder="Command the thread..."></textarea>
+            <div class="pb-2">
+                <button onclick="weave()" id="weaveBtn" class="skeuo-btn p-4 text-blue-500 hover:text-blue-600 transition-colors">
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </footer>
 
     <script>
         lucide.createIcons();
@@ -237,25 +176,21 @@ const html = `
             const list = document.getElementById('chatList');
             const div = document.createElement('div');
             div.id = id;
-            div.className = 'message-bubble flex gap-6';
+            div.className = \`message-bubble skeuo-base flex gap-6 items-start \${role === 'user' ? 'bg-white/40' : ''}\`;
             
-            const icon = role === 'user' ? 'user' : 'zap';
-            const iconClass = role === 'user' ? 'user-icon' : 'ai-icon';
-            const title = role === 'user' ? 'DSP' : 'Hopthread';
+            const icon = role === 'user' ? '👤' : '🧶';
             const tag = role === 'user' ? 'User Instruction' : 'Pulse Response';
+            const tagColor = role === 'user' ? 'text-neutral-500' : 'text-blue-500';
 
             div.innerHTML = \`
-                <div class="w-10 h-10 \${iconClass} rounded-xl flex-shrink-0 flex items-center justify-center">
-                    <i data-lucide="\${icon}" class="text-white w-6 h-6 \${role === 'ai' ? 'fill-white' : ''}"></i>
-                </div>
-                <div class="flex-grow">
-                    <div class="tag mb-2">\${tag}</div>
-                    <div class="\${role === 'ai' ? 'text-neutral-300' : 'text-white font-medium'} \${isLoading ? 'animate-pulse' : ''}">\${text}</div>
+                <div class="skeuo-inset p-3 ai-icon flex-shrink-0">\${icon}</div>
+                <div class="flex-grow pt-2">
+                    <div class="text-[10px] font-black uppercase tracking-widest \${tagColor} mb-2">\${tag}</div>
+                    <div class="text-sm font-medium leading-relaxed \${isLoading ? 'animate-pulse' : ''}">\${text}</div>
                 </div>
             \`;
             
             list.appendChild(div);
-            lucide.createIcons();
             gsap.to(div, { opacity: 1, y: 0, duration: 0.4 });
             scrollToBottom();
             return id;
@@ -270,7 +205,7 @@ const html = `
         }
 
         function scrollToBottom() {
-            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+            chatContainer.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
         }
     </script>
 </body>
@@ -281,13 +216,13 @@ app.get('/', (c) => c.html(html));
 
 app.post('/api/weave', async (c) => {
     const { task } = await c.req.json();
-    console.log(chalk.cyan(`[WEB] Incoming thread: \${task}`));
+    console.log(chalk.cyan(`[WEB] Incoming thread: ${task}`));
     const response = await getPulse(task);
     return c.json({ response });
 });
 
 const port = 3000;
-console.log(chalk.blue(\`\\n🌒 Hopthread Console starting on http://localhost:\${port}\`));
+console.log(chalk.blue(`\n🌒 Hopthread Console starting on http://localhost:${port}`));
 
 serve({
   fetch: app.fetch,
