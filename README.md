@@ -16,6 +16,18 @@ Hopthread is structured into three core modules:
 
 ---
 
+## 🧶 The Four Weaves (Killer Features)
+
+Hopthread doesn't just read code; it weaves it into actionable intelligence:
+
+1.  **Codebase Synthesis (BRIEFING.md):** Instant high-fidelity architectural summaries of any folder.
+2.  **The Architect's Redline:** Automatic detection of friction, redundant logic, and potential bugs.
+3.  **Visual Mapping (DIAGRAM.md):** Auto-generated Mermaid.js diagrams of module relationships.
+4.  **Context Condenser (.ht-context):** A token-optimized snapshot for pasting into other LLMs (Claude/ChatGPT).
+5.  **Intelligence Graft:** Targeted suggestions for where and how to integrate AI into your specific app.
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -41,11 +53,6 @@ Hopthread is structured into three core modules:
     GROQ_API_KEY=your_groq_api_key_here
     ```
 
-4.  **Global Link (Optional):**
-    ```bash
-    bun link
-    ```
-
 ---
 
 ## 🧶 Usage
@@ -57,28 +64,12 @@ You interact with Hopthread through **The Loom**.
 bun run ./src/cli/loom.ts pulse
 ```
 
-### Weave an Autonomous Task
-This command initiates the agentic loop. Hopthread will think, decide which tools to use, and execute them automatically.
+### Weave a Full Synthesis
+This command initiates the "Four Weaves" cycle. Hopthread will scan, analyze, and generate all technical docs automatically.
 
 ```bash
-bun run ./src/cli/loom.ts weave "List the files in this directory and create a summary.txt with the count"
+bun run ./src/cli/loom.ts weave "Synthesize the codebase at /path/to/your/project"
 ```
-
----
-
-## 🖐️ The Hand (Tools)
-
-Hopthread currently has the following capabilities:
-- **execute_shell:** Run any bash/cmd command.
-- **write_file:** Create or modify local files.
-- **read_file:** Ingest local file data for analysis.
-
----
-
-## 🛠️ Roadmap
-- [ ] **The Echo:** Implement RAG-based long-term memory.
-- [ ] **Specialists:** Pre-configured agent personas for specific stacks (React, Python, DevOps).
-- [ ] **Web Integration:** Allow Hopthread to fetch and analyze live URLs.
 
 ---
 
