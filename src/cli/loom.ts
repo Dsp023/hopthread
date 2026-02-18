@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 import { Command } from "commander";
 import chalk from "chalk";
-// import { version } from "../../package.json";
+import { getPulse } from "../core/pulse";
+
 const version = "0.0.1-alpha";
 
 const program = new Command();
@@ -27,10 +28,15 @@ program
   .argument("<task>", "The task to weave into the thread")
   .option("-s, --specialist <type>", "The specialist agent to use", "generalist")
   .description("Initialize a new execution thread")
-  .action((task, options) => {
+  .action(async (task, options) => {
     console.log(chalk.cyan(`\n🧶 Weaving task: "${task}"`));
-    console.log(chalk.dim(`Using ${options.specialist} specialist...`));
-    console.log(chalk.yellow("Thread is being spun. [PULSE DETECTED]\n"));
+    console.log(chalk.dim(`Using ${options.specialist} specialist via Groq...`));
+    
+    const response = await getPulse(task);
+    
+    console.log(chalk.green("\n🌒 Pulse Response:"));
+    console.log(chalk.white(response));
+    console.log(chalk.dim("\nThread finalized. [PULSE SUCCESSFUL]\n"));
   });
 
 program.parse(process.argv);
