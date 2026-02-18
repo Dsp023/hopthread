@@ -1,6 +1,7 @@
 import Groq from "groq-sdk";
 import * as dotenv from "dotenv";
 import { TheHand } from "../tools/hand";
+import { TheEye } from "../tools/eye";
 import chalk from "chalk";
 
 dotenv.config();
@@ -9,32 +10,31 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
-// Define tools for the AI model
 const tools = [
   {
     type: "function",
     function: {
-      name: "execute_shell",
-      description: "Run a shell command on the local system and get the output.",
+      name: "scan_directory",
+      description: "Deeply scan a directory to understand the codebase and files.",
       parameters: {
         type: "object",
         properties: {
-          command: { type: "string", description: "The shell command to run." },
+          path: { type: "string", description: "The local folder path to scan." },
         },
-        required: ["command"],
+        required: ["path"],
       },
     },
   },
   {
     type: "function",
     function: {
-      name: "write_file",
-      description: "Create or overwrite a file with specific content.",
+      name: "write_briefing",
+      description: "Save a detailed briefing or technical documentation to a file.",
       parameters: {
         type: "object",
         properties: {
-          path: { type: "string", description: "The file path." },
-          content: { type: "string", description: "The text content to write." },
+          path: { type: "string", description: "Where to save the briefing (e.g., 'BRIEFING.md')." },
+          content: { type: "string", description: "The briefing content in Markdown." },
         },
         required: ["path", "content"],
       },
@@ -43,14 +43,14 @@ const tools = [
   {
     type: "function",
     function: {
-      name: "read_file",
-      description: "Read the content of a file from the disk.",
+      name: "execute_shell",
+      description: "Run a shell command on the local system.",
       parameters: {
         type: "object",
         properties: {
-          path: { type: "string", description: "The file path." },
+          command: { type: "string", description: "The shell command to run." },
         },
-        required: ["path"],
+        required: ["command"],
       },
     },
   },
@@ -61,7 +61,12 @@ export async function getPulse(prompt: string) {
     let messages: any[] = [
       {
         role: "system",
-        content: "You are the core intelligence of Hopthread. You have 'hands' (tools) to interact with the system. Use them when needed to fulfill Dsp's requests.",
+        content: `You are the core intelligence of Hopthread. 
+        Your specialty is 'Codebase Synthesis'. 
+        When a user provides a path, your goal is to:
+        1. Scan the directory.
+        2. Analyze every file to understand the architecture.
+        3. Create a high-fidelity 'BRIEFING.md' that summarizes the project, tech stack, and core logic so the user doesn't have to look at the files themselves.`,
       },
       {
         role: "user",
@@ -69,7 +74,7 @@ export async function getPulse(prompt: string) {
       },
     ];
 
-    console.log(chalk.dim("[PULSE] Initiating thought cycle..."));
+    console.log(chalk.dim("[PULSE] Initiating synthesis cycle..."));
 
     const response = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
@@ -88,14 +93,15 @@ export async function getPulse(prompt: string) {
         const functionArgs = JSON.parse(toolCall.function.arguments);
         let toolResult = "";
 
-        console.log(chalk.yellow(`[PULSE] Using tool: ${functionName}`));
+        console.log(chalk.yellow(`[PULSE] Activating Hand: ${functionName}`));
 
-        if (functionName === "execute_shell") {
-          toolResult = TheHand.execute(functionArgs.command);
-        } else if (functionName === "write_file") {
+        if (functionName === "scan_directory") {
+          const scanData = await TheEye.scan(functionArgs.path);
+          toolResult = JSON.stringify(scanData);
+        } else if (functionName === "write_briefing") {
           toolResult = TheHand.write(functionArgs.path, functionArgs.content);
-        } else if (functionName === "read_file") {
-          toolResult = TheHand.read(functionArgs.path);
+        } else if (functionName === "execute_shell") {
+          toolResult = TheHand.execute(functionArgs.command);
         }
 
         messages.push({
