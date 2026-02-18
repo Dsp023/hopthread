@@ -1,0 +1,1 @@
+High fidelity summary of architecture and tech stack

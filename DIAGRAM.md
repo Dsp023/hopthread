@@ -1,0 +1,1 @@
+Mermaid.js diagram showing how files and modules connect
