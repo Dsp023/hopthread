@@ -89,4 +89,4 @@ Hopthread currently has the following capabilities:
 
 ---
 
-Built by **Dsp** & **Anya**. 🌒
+Built by **Dsp**. 🌒
