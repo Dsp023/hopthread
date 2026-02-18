@@ -1,4 +1,4 @@
-# 🌒 Hopthread
+#  Hopthread 🧶 
 
 **Hopthread** is a high-fidelity, agentic AI framework built for the next generation of digital ecosystems. It is designed to be the "thread" that connects intelligent thought (LLMs) to technical execution (System/OS).
 
@@ -55,7 +55,7 @@ Hopthread doesn't just read code; it weaves it into actionable intelligence:
 
 ---
 
-## 🧶 Usage
+##  Usage
 
 You interact with Hopthread through **The Loom**.
 
@@ -70,6 +70,22 @@ This command initiates the "Four Weaves" cycle. Hopthread will scan, analyze, an
 ```bash
 bun run ./src/cli/loom.ts weave "Synthesize the codebase at /path/to/your/project"
 ```
+
+---
+
+## 🖐️ The Hand (Tools)
+
+Hopthread currently has the following capabilities:
+- **execute_shell:** Run any bash/cmd command.
+- **write_file:** Create or modify local files.
+- **read_file:** Ingest local file data for analysis.
+
+---
+
+## 🛠️ Roadmap
+- [ ] **The Echo:** Implement RAG-based long-term memory.
+- [ ] **Specialists:** Pre-configured agent personas for specific stacks (React, Python, DevOps).
+- [ ] **Web Integration:** Allow Hopthread to fetch and analyze live URLs.
 
 ---
 
