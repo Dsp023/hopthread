@@ -11,169 +11,212 @@ const html = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HOPTHREAD | OS</title>
+    <title>HOPTHREAD | CONSOLE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Plus+Jakarta+Sans:wght@200;400;700;800&display=swap');
 
         :root {
-            --bg: #000000;
-            --text: #ffffff;
-            --dim: #666666;
-            --border: #111111;
-            --accent: #ffffff;
+            --bg: #050505;
+            --text: #e0e0e0;
+            --accent: #3b82f6; /* Technical Blue */
+            --accent-glow: rgba(59, 130, 246, 0.2);
+            --border: #1a1a1a;
+            --terminal: #0a0a0a;
         }
 
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             -webkit-font-smoothing: antialiased;
             overflow: hidden;
             height: 100vh;
         }
 
-        .thread-line {
-            position: absolute;
-            width: 1px;
-            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.1), transparent);
-            height: 100vh;
-            z-index: 0;
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .sidebar {
+            width: 300px;
+            background: var(--terminal);
+            border-right: 1px solid var(--border);
+        }
+
+        .main-view {
+            background: var(--bg);
+            flex-grow: 1;
+        }
+
+        .input-container {
+            background: var(--terminal);
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .input-container:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
         }
 
         .chat-container {
-            height: calc(100vh - 180px);
-            scrollbar-width: none;
-        }
-        .chat-container::-webkit-scrollbar { display: none; }
-
-        .input-box {
-            background: rgba(10, 10, 10, 0.8);
-            border: 1px solid var(--border);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            transition: border-color 0.4s ease;
-        }
-
-        .input-box:focus-within {
-            border-color: #333;
+            height: calc(100vh - 140px);
+            scrollbar-width: thin;
+            scrollbar-color: #222 transparent;
         }
 
         .message-bubble {
-            max-width: 85%;
-            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
             opacity: 0;
             transform: translateY(10px);
         }
 
-        .ai-text {
-            color: #ccc;
-            line-height: 1.6;
-            font-size: 0.95rem;
+        .ai-icon {
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
         }
 
-        .user-text {
-            color: white;
-            font-weight: 500;
-            text-align: right;
+        .user-icon {
+            background: #333;
         }
 
-        .pulse-dot {
-            width: 4px;
-            height: 4px;
-            background: white;
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 10px white;
+        .tag {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            font-weight: 700;
         }
 
-        @keyframes scanline {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100vh); }
+        pre code {
+            font-family: 'JetBrains Mono', monospace;
+            background: #000;
+            display: block;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #111;
+            margin-top: 1rem;
         }
-        .scanline {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.03);
-            animation: scanline 8s linear infinite;
-            pointer-events: none;
+
+        /* Animations */
+        @keyframes pulse-blue {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
         }
+        .active-pulse { animation: pulse-blue 2s infinite; }
     </style>
 </head>
-<body class="flex flex-col">
-    <div class="scanline"></div>
-    <div class="thread-line" style="left: 10vw"></div>
-    <div class="thread-line" style="left: 90vw"></div>
+<body class="flex">
 
-    <!-- Header -->
-    <header class="p-8 flex justify-between items-center relative z-10">
-        <div class="flex items-center gap-3">
-            <span class="text-xs font-bold tracking-[0.4em] uppercase">Hopthread</span>
-            <div class="pulse-dot"></div>
+    <!-- Sidebar -->
+    <aside class="sidebar hidden md:flex flex-col p-6">
+        <div class="flex items-center gap-3 mb-12">
+            <div class="w-8 h-8 ai-icon rounded-lg flex items-center justify-center">
+                <i data-lucide="thread" class="text-white w-5 h-5"></i>
+            </div>
+            <span class="font-extrabold text-lg tracking-tighter uppercase">Hopthread</span>
         </div>
-        <div class="text-[10px] font-bold uppercase tracking-widest text-neutral-600">
-            System_Ready_v0.1
-        </div>
-    </header>
 
-    <!-- Chat Area -->
-    <main id="chatContainer" class="chat-container flex-grow overflow-y-auto px-8 md:px-24 py-12 relative z-10 flex flex-col items-center">
-        <div class="w-full max-w-3xl" id="chatList">
-            <!-- Greeting -->
-            <div class="message-bubble w-full ai-msg">
-                <div class="text-[10px] uppercase tracking-widest text-neutral-600 mb-2">Anyatheard // Pulse</div>
-                <div class="ai-text">The thread is initialized. I am ready to analyze, synthesize, or chat. What is our objective?</div>
+        <nav class="space-y-2 flex-grow">
+            <div class="text-[10px] uppercase tracking-widest text-neutral-600 mb-4 font-bold">Workspace</div>
+            <a href="#" class="flex items-center gap-3 p-3 bg-white/5 rounded-xl text-sm font-medium border border-white/5">
+                <i data-lucide="message-square" class="w-4 h-4 text-blue-400"></i> Active Thread
+            </a>
+            <a href="#" class="flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl text-sm font-medium text-neutral-500 transition-colors">
+                <i data-lucide="folder-git-2" class="w-4 h-4"></i> Repository Analysis
+            </a>
+            <a href="#" class="flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl text-sm font-medium text-neutral-500 transition-colors">
+                <i data-lucide="settings" class="w-4 h-4"></i> System Config
+            </a>
+        </nav>
+
+        <div class="mt-auto p-4 bg-blue-500/5 rounded-2xl border border-blue-500/10">
+            <div class="flex items-center gap-2 mb-2">
+                <div class="w-2 h-2 bg-blue-500 rounded-full active-pulse"></div>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-blue-400">Gateway Online</span>
+            </div>
+            <p class="text-[10px] text-neutral-500 font-medium">Node: v22.22.0<br>OS: Linux WSL2</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-view flex flex-col">
+        
+        <!-- Header -->
+        <header class="p-6 border-b border-border flex justify-between items-center bg-terminal/50 backdrop-blur-md">
+            <div class="flex items-center gap-4">
+                <i data-lucide="terminal" class="w-4 h-4 text-blue-500"></i>
+                <span class="text-xs font-bold uppercase tracking-widest text-neutral-400">Console / agent:main:main</span>
+            </div>
+            <div class="flex gap-4">
+                <button class="p-2 hover:bg-white/5 rounded-lg text-neutral-500"><i data-lucide="search" class="w-4 h-4"></i></button>
+                <button class="p-2 hover:bg-white/5 rounded-lg text-neutral-500"><i data-lucide="panel-right" class="w-4 h-4"></i></button>
+            </div>
+        </header>
+
+        <!-- Chat -->
+        <div id="chatContainer" class="chat-container overflow-y-auto">
+            <div class="max-w-4xl mx-auto w-full" id="chatList">
+                <!-- Initial Msg -->
+                <div class="message-bubble flex gap-6 ai-msg">
+                    <div class="w-10 h-10 ai-icon rounded-xl flex-shrink-0 flex items-center justify-center">
+                        <i data-lucide="zap" class="text-white w-6 h-6 fill-white"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <div class="tag mb-2">System Initialized</div>
+                        <div class="text-neutral-300 leading-relaxed">
+                            I am Hopthread. Your agentic gateway is active. I have full system access via **The Hand** and **The Eye**. How shall we weave the next thread?
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input -->
+        <div class="p-6 flex justify-center">
+            <div class="input-container w-full max-w-4xl flex items-end p-2 pr-4 rounded-2xl">
+                <textarea id="taskInput" rows="1" class="flex-grow bg-transparent p-4 outline-none text-sm resize-none mono h-14" placeholder="Type a command or ask a question..."></textarea>
+                <div class="flex gap-2 pb-2">
+                     <button class="p-3 text-neutral-600 hover:text-neutral-400"><i data-lucide="paperclip" class="w-5 h-5"></i></button>
+                     <button onclick="weave()" id="weaveBtn" class="p-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-all shadow-lg shadow-blue-900/20">
+                        <i data-lucide="arrow-up" class="w-5 h-5"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- Input Area -->
-    <footer class="p-8 md:p-12 relative z-10 flex justify-center">
-        <div class="input-box w-full max-w-3xl flex items-center p-2 pr-4">
-            <textarea id="taskInput" class="flex-grow bg-transparent p-4 outline-none text-sm resize-none h-12" placeholder="Talk to the thread..."></textarea>
-            <button onclick="weave()" id="weaveBtn" class="p-2 hover:bg-neutral-900 rounded-xl transition-colors">
-                <i data-lucide="arrow-up" class="w-5 h-5"></i>
-            </button>
-        </div>
-    </footer>
-
     <script>
         lucide.createIcons();
-
-        // Initial animation
-        gsap.to(".ai-msg", { opacity: 1, y: 0, duration: 1 });
+        gsap.to(".ai-msg", { opacity: 1, y: 0, duration: 0.8 });
 
         const input = document.getElementById('taskInput');
+        const chatContainer = document.getElementById('chatContainer');
         
-        // Auto-resize textarea
         input.addEventListener('input', () => {
             input.style.height = 'auto';
-            input.style.height = input.scrollHeight + 'px';
+            input.style.height = Math.min(input.scrollHeight, 200) + 'px';
         });
 
-        // Enter key to send
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 weave();
             }
         });
-        
+
         async function weave() {
             const task = input.value.trim();
             if(!task) return;
 
-            // Add User Message
             addMessage(task, 'user');
             input.value = '';
             input.style.height = 'auto';
 
-            // Loading indicator
             const loadingId = addMessage('...', 'ai', true);
 
             try {
@@ -185,7 +228,7 @@ const html = `
                 const data = await response.json();
                 updateMessage(loadingId, data.response);
             } catch (err) {
-                updateMessage(loadingId, "Thread broken: " + err);
+                updateMessage(loadingId, "Thread interrupted: " + err);
             }
         }
 
@@ -194,30 +237,40 @@ const html = `
             const list = document.getElementById('chatList');
             const div = document.createElement('div');
             div.id = id;
-            div.className = \`message-bubble w-full \${role === 'user' ? 'flex flex-col items-end' : ''}\`;
+            div.className = 'message-bubble flex gap-6';
             
+            const icon = role === 'user' ? 'user' : 'zap';
+            const iconClass = role === 'user' ? 'user-icon' : 'ai-icon';
+            const title = role === 'user' ? 'DSP' : 'Hopthread';
+            const tag = role === 'user' ? 'User Instruction' : 'Pulse Response';
+
             div.innerHTML = \`
-                <div class="text-[10px] uppercase tracking-widest text-neutral-600 mb-2">\${role === 'user' ? 'DSP // Vision' : 'Anyatheard // Pulse'}</div>
-                <div class="\${role === 'user' ? 'user-text' : 'ai-text'} \${isLoading ? 'animate-pulse' : ''}">\${text}</div>
+                <div class="w-10 h-10 \${iconClass} rounded-xl flex-shrink-0 flex items-center justify-center">
+                    <i data-lucide="\${icon}" class="text-white w-6 h-6 \${role === 'ai' ? 'fill-white' : ''}"></i>
+                </div>
+                <div class="flex-grow">
+                    <div class="tag mb-2">\${tag}</div>
+                    <div class="\${role === 'ai' ? 'text-neutral-300' : 'text-white font-medium'} \${isLoading ? 'animate-pulse' : ''}">\${text}</div>
+                </div>
             \`;
             
             list.appendChild(div);
-            gsap.to(div, { opacity: 1, y: 0, duration: 0.5 });
+            lucide.createIcons();
+            gsap.to(div, { opacity: 1, y: 0, duration: 0.4 });
             scrollToBottom();
             return id;
         }
 
         function updateMessage(id, text) {
             const msg = document.getElementById(id);
-            const textDiv = msg.querySelector('.ai-text');
-            textDiv.innerText = text;
-            textDiv.classList.remove('animate-pulse');
+            const contentDiv = msg.querySelector('.flex-grow div:nth-child(2)');
+            contentDiv.innerText = text;
+            contentDiv.classList.remove('animate-pulse');
             scrollToBottom();
         }
 
         function scrollToBottom() {
-            const container = document.getElementById('chatContainer');
-            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
         }
     </script>
 </body>
@@ -228,13 +281,13 @@ app.get('/', (c) => c.html(html));
 
 app.post('/api/weave', async (c) => {
     const { task } = await c.req.json();
-    console.log(chalk.cyan(`[WEB] Incoming thread: ${task}`));
+    console.log(chalk.cyan(`[WEB] Incoming thread: \${task}`));
     const response = await getPulse(task);
     return c.json({ response });
 });
 
 const port = 3000;
-console.log(chalk.green(`\n🌒 Hopthread OS starting on http://localhost:${port}`));
+console.log(chalk.blue(\`\\n🌒 Hopthread Console starting on http://localhost:\${port}\`));
 
 serve({
   fetch: app.fetch,
