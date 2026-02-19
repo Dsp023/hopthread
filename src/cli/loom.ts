@@ -6,6 +6,7 @@ import { TheHand } from "../tools/hand";
 import { TheEye } from "../tools/eye";
 
 const version = "0.0.1-alpha";
+const envPath = "/mnt/d/Anya_workspace/hopthread/.env";
 
 const program = new Command();
 
@@ -28,20 +29,41 @@ program
 program
   .command("config")
   .description("Configure Hopthread settings")
-  .argument("<key>", "Configuration key (e.g., groq_key)")
-  .argument("<value>", "Configuration value")
+  .argument("<key>", "Configuration key (groq_key, google_key, openai_key, nvidia_key, provider)")
+  .argument("[value]", "Configuration value")
   .action(async (key, value) => {
-    if (key.toLowerCase() === "groq_key") {
-      const envPath = "/mnt/d/Anya_workspace/hopthread/.env";
-      const content = `GROQ_API_KEY=${value}\n`;
+    const keyMap: Record<string, string> = {
+      groq_key: "GROQ_API_KEY",
+      google_key: "GOOGLE_API_KEY",
+      openai_key: "OPENAI_API_KEY",
+      nvidia_key: "NVIDIA_API_KEY",
+      provider: "HOPTHREAD_PROVIDER"
+    };
+
+    const envKey = keyMap[key.toLowerCase()];
+    if (!envKey) {
+      console.log(chalk.red(`\n❌ Unknown configuration key: ${key}`));
+      return;
+    }
+
+    if (!value) {
+        console.log(chalk.yellow(`\nMissing value for ${key}. Usage: hopthread config ${key} <value>\n`));
+        return;
+    }
+
+    try {
+      let currentContent = "";
       try {
-        await Bun.write(envPath, content);
-        console.log(chalk.green(`\n✅ Configuration updated: ${key} set successfully.\n`));
-      } catch (e) {
-        console.log(chalk.red(`\n❌ Failed to write configuration: ${e}\n`));
-      }
-    } else {
-      console.log(chalk.red(`\n❌ Unknown configuration key: ${key}\n`));
+          currentContent = await Bun.file(envPath).text();
+      } catch (e) {}
+
+      const lines = currentContent.split("\n").filter(l => l && !l.startsWith(`${envKey}=`));
+      lines.push(`${envKey}=${value}`);
+      
+      await Bun.write(envPath, lines.join("\n") + "\n");
+      console.log(chalk.green(`\n✅ Configuration updated: ${envKey} set successfully.\n`));
+    } catch (e) {
+      console.log(chalk.red(`\n❌ Failed to write configuration: ${e}\n`));
     }
   });
 
@@ -70,24 +92,19 @@ program
 program
   .command("weave")
   .argument("<task>", "The task to weave into the thread")
-  .option("-s, --specialist <type>", "The specialist agent to use", "generalist")
   .description("Initialize a new execution thread")
-  .action(async (task, options) => {
+  .action(async (task) => {
     console.log(chalk.cyan(`\n🧶 Weaving task: "${task}"`));
-    console.log(chalk.dim(`Using ${options.specialist} specialist via Groq...`));
-    
     const response = await getPulse(task);
-    
-    console.log(chalk.green("\n🌒 Pulse Response:"));
+    console.log(chalk.green("\n🌒 Response:"));
     console.log(chalk.white(response));
-    console.log(chalk.dim("\nThread finalized. [PULSE SUCCESSFUL]\n"));
+    console.log(chalk.dim("\nThread finalized.\n"));
   });
 
 program
   .command("ui")
   .description("Launch the Hopthread Web Dashboard")
   .action(async () => {
-    // Dynamically import to keep CLI fast
     const { startServer } = await import("../web/server");
     startServer();
   });
