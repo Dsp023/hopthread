@@ -6,9 +6,15 @@ import chalk from "chalk";
 
 dotenv.config();
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+// Create a function to get the client lazily to avoid immediate crash if key is missing
+function getGroqClient() {
+  if (!process.env.GROQ_API_KEY) {
+    throw new Error("GROQ_API_KEY is not set. Please run: hopthread config groq_key <your_key>");
+  }
+  return new Groq({
+    apiKey: process.env.GROQ_API_KEY,
+  });
+}
 
 const tools = [
   {
@@ -72,6 +78,8 @@ const tools = [
 
 export async function getPulse(prompt: string) {
   try {
+    const groq = getGroqClient();
+    
     let messages: any[] = [
       {
         role: "system",
@@ -145,6 +153,9 @@ export async function getPulse(prompt: string) {
 
     return responseMessage.content || "No pulse detected.";
   } catch (error) {
+    if (error instanceof Error) {
+        return `Pulse Error: ${error.message}`;
+    }
     return `Pulse Error: ${error}`;
   }
 }
