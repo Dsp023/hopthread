@@ -3,6 +3,7 @@ import { Command } from "commander";
 import chalk from "chalk";
 import { getPulse } from "../core/pulse";
 import { TheHand } from "../tools/hand";
+import { TheEye } from "../tools/eye";
 
 const version = "0.0.1-alpha";
 
@@ -22,6 +23,26 @@ program
     console.log(`${chalk.bold("Status:")} Online`);
     console.log(`${chalk.bold("Runtime:")} Bun ${Bun.version}`);
     console.log(`${chalk.bold("Station:")} DSP-STATION\n`);
+  });
+
+program
+  .command("config")
+  .description("Configure Hopthread settings")
+  .argument("<key>", "Configuration key (e.g., groq_key)")
+  .argument("<value>", "Configuration value")
+  .action(async (key, value) => {
+    if (key.toLowerCase() === "groq_key") {
+      const envPath = "/mnt/d/Anya_workspace/hopthread/.env";
+      const content = `GROQ_API_KEY=${value}\n`;
+      try {
+        await Bun.write(envPath, content);
+        console.log(chalk.green(`\n✅ Configuration updated: ${key} set successfully.\n`));
+      } catch (e) {
+        console.log(chalk.red(`\n❌ Failed to write configuration: ${e}\n`));
+      }
+    } else {
+      console.log(chalk.red(`\n❌ Unknown configuration key: ${key}\n`));
+    }
   });
 
 program
@@ -65,8 +86,10 @@ program
 program
   .command("ui")
   .description("Launch the Hopthread Web Dashboard")
-  .action(() => {
-    import("../web/server");
+  .action(async () => {
+    // Dynamically import to keep CLI fast
+    const { startServer } = await import("../web/server");
+    startServer();
   });
 
 program.parse(process.argv);
