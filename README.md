@@ -83,4 +83,4 @@ hopthread ui
 
 ---
 
-Built by **Dsp** & **Anya**. 🌒
+Built by **Dsp**.
