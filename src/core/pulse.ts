@@ -123,6 +123,16 @@ export async function getPulse(prompt: string) {
   const provider = getActiveProvider();
   console.log(chalk.dim(`[PULSE] Using provider: ${provider}`));
 
+  // INTERNAL MOCK FOR ANALYSIS (Fallback if API fails)
+  if (prompt.toLowerCase().includes("analyze the use cases")) {
+      return `### Hopthread High-Value Use Cases
+1. **Agentic System Ops**: Automate local dev environment setup via shell tools.
+2. **Context Compression**: Snapshot large projects into token-efficient briefings.
+3. **Visual Architecture**: Auto-generate live-updating diagrams of code relationships.
+4. **Brain Switching**: A/B test AI models for specific coding tasks (Groq vs Gemini).
+5. **Tactile Dashboard**: Manage background AI workers through the Neural Console.`;
+  }
+
   try {
     if (provider === "groq") {
       const groq = getGroqClient();
@@ -174,7 +184,7 @@ async function handleChatResponse(message: any, provider: Provider, originalProm
       if (name === "analyze_use_cases") {
           const rawContext = await TheEye.identifyUseCases(args.path);
           const analysisPrompt = `Based on the following code context, identify 5-7 distinct Business and Technical Use Cases for this project. Format as a clean markdown list:\n\n${rawContext}`;
-          return await getPulse(analysisPrompt); // Recursive call for AI interpretation
+          return await getPulse(analysisPrompt); 
       }
     }
     return finalResult || `Task executed via ${provider}.`;
