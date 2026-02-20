@@ -29,6 +29,12 @@ function getGoogleClient() {
   return new GoogleGenerativeAI(key);
 }
 
+function getOpenAIClient() {
+  const key = process.env.OPENAI_API_KEY;
+  if (!key) throw new Error("OPENAI_API_KEY is not set. Run: hopthread config openai_key <key>");
+  return new OpenAI({ apiKey: key });
+}
+
 function getNvidiaClient() {
   const key = process.env.NVIDIA_API_KEY;
   if (!key) throw new Error("NVIDIA_API_KEY is not set. Run: hopthread config nvidia_key <key>");
@@ -99,6 +105,18 @@ const tools = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "analyze_use_cases",
+      description: "Analyze the codebase to identify potential business and technical use cases.",
+      parameters: {
+        type: "object",
+        properties: { path: { type: "string" } },
+        required: ["path"],
+      },
+    },
+  },
 ];
 
 export async function getPulse(prompt: string) {
@@ -152,6 +170,12 @@ async function handleChatResponse(message: any, provider: Provider, originalProm
       if (name === "read_file") finalResult += TheHand.read(args.path);
       if (name === "scan_directory") finalResult += JSON.stringify(await TheEye.scan(args.path));
       if (name === "generate_map") finalResult += await TheEye.generateDiagram(args.path);
+      
+      if (name === "analyze_use_cases") {
+          const rawContext = await TheEye.identifyUseCases(args.path);
+          const analysisPrompt = `Based on the following code context, identify 5-7 distinct Business and Technical Use Cases for this project. Format as a clean markdown list:\n\n${rawContext}`;
+          return await getPulse(analysisPrompt); // Recursive call for AI interpretation
+      }
     }
     return finalResult || `Task executed via ${provider}.`;
   }
