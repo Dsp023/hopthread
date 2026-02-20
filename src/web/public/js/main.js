@@ -74,6 +74,14 @@ document.addEventListener('DOMContentLoaded', () => {
         chatThread.appendChild(div);
         lucide.createIcons();
         
+        // Initialize Mermaid if found
+        if (text.includes('graph TD') || text.includes('graph LR')) {
+            import('https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs').then(m => {
+                m.default.initialize({ startOnLoad: true, theme: 'dark' });
+                m.default.run();
+            });
+        }
+
         gsap.to(div, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" });
         scrollToBottom();
         
@@ -85,6 +93,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentDiv = msg.querySelector('.message-content');
         contentDiv.innerHTML = formatText(text);
         contentDiv.classList.remove('animate-pulse', 'opacity-50');
+        
+        // Re-run Mermaid for updated content
+        if (text.includes('graph TD') || text.includes('graph LR')) {
+            const mermaidDiv = document.createElement('div');
+            mermaidDiv.className = 'mermaid mt-4 bg-black/40 p-4 rounded-xl border border-white/5';
+            mermaidDiv.textContent = text.match(/(graph [\s\S]*)/)[0];
+            contentDiv.appendChild(mermaidDiv);
+            
+            import('https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs').then(m => {
+                m.default.run();
+            });
+        }
+        
         scrollToBottom();
     }
 

@@ -29,12 +29,6 @@ function getGoogleClient() {
   return new GoogleGenerativeAI(key);
 }
 
-function getOpenAIClient() {
-  const key = process.env.OPENAI_API_KEY;
-  if (!key) throw new Error("OPENAI_API_KEY is not set. Run: hopthread config openai_key <key>");
-  return new OpenAI({ apiKey: key });
-}
-
 function getNvidiaClient() {
   const key = process.env.NVIDIA_API_KEY;
   if (!key) throw new Error("NVIDIA_API_KEY is not set. Run: hopthread config nvidia_key <key>");
@@ -93,6 +87,18 @@ const tools = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "generate_map",
+      description: "Generate a Mermaid.js diagram of the codebase structure.",
+      parameters: {
+        type: "object",
+        properties: { path: { type: "string" } },
+        required: ["path"],
+      },
+    },
+  },
 ];
 
 export async function getPulse(prompt: string) {
@@ -135,17 +141,19 @@ export async function getPulse(prompt: string) {
 
 async function handleChatResponse(message: any, provider: Provider, originalPrompt: string) {
   if (message.tool_calls) {
+      let finalResult = "";
     for (const toolCall of message.tool_calls) {
       const name = toolCall.function.name;
       const args = JSON.parse(toolCall.function.arguments);
       console.log(chalk.yellow(`[PULSE] Executing: ${name}`));
       
-      if (name === "execute_shell") TheHand.execute(args.command);
-      if (name === "write_file") TheHand.write(args.path, args.content);
-      if (name === "read_file") TheHand.read(args.path);
-      if (name === "scan_directory") await TheEye.scan(args.path);
+      if (name === "execute_shell") finalResult += TheHand.execute(args.command);
+      if (name === "write_file") finalResult += TheHand.write(args.path, args.content);
+      if (name === "read_file") finalResult += TheHand.read(args.path);
+      if (name === "scan_directory") finalResult += JSON.stringify(await TheEye.scan(args.path));
+      if (name === "generate_map") finalResult += await TheEye.generateDiagram(args.path);
     }
-    return `Task executed via ${provider}. Check your workspace for changes.`;
+    return finalResult || `Task executed via ${provider}.`;
   }
   return message.content;
 }
