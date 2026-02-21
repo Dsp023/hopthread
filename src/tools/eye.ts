@@ -28,23 +28,47 @@ export const TheEye = {
         });
 
         let mermaid = "graph TD\n";
-        mermaid += "    subgraph Hopthread_Core\n";
         
-        files.forEach(file => {
-            const fileName = path.basename(file, path.extname(file));
-            const folder = path.dirname(file).split(path.sep).pop();
-            mermaid += `        ${fileName}["${fileName} (${folder})"]\n`;
+        // Define Clusters/Subgraphs based on folder structure
+        const folders = new Set(files.map(f => path.dirname(f)));
+        
+        folders.forEach(folder => {
+            const folderName = folder.replace(/\\/g, '/').replace('src/', '');
+            mermaid += `    subgraph ${folderName.replace(/\//g, '_')}_Cluster [${folderName}]\n`;
+            files.filter(f => path.dirname(f) === folder).forEach(file => {
+                const fileName = path.basename(file, path.extname(file));
+                mermaid += `        ${fileName}["${fileName}${path.extname(file)}"]\n`;
+            });
+            mermaid += "    end\n";
         });
 
-        mermaid += "    end\n";
-        mermaid += "    loom[Loom CLI] --> pulse[Pulse AI Brain]\n";
-        mermaid += "    pulse --> hand[The Hand Execution]\n";
-        mermaid += "    pulse --> eye[The Eye Vision]\n";
-        mermaid += "    server[Hono Server] --> pulse\n";
-        mermaid += "    loom --> server\n";
+        // Add standard relationships for Hopthread architecture
+        mermaid += "\n    %% Core Logic Flow\n";
+        mermaid += "    loom --> pulse\n";
+        mermaid += "    server --> pulse\n";
+        mermaid += "    pulse --> hand\n";
+        mermaid += "    pulse --> eye\n";
+        
+        // Dynamic dependency detection (simple import grep)
+        files.forEach(file => {
+            const content = fs.readFileSync(path.join(directoryPath, file), 'utf8');
+            const fileName = path.basename(file, path.extname(file));
+            
+            // Look for imports from our own modules
+            const importMatches = content.match(/from\s+['"]\.\.?\/([^'"]+)['"]/g);
+            if (importMatches) {
+                importMatches.forEach(match => {
+                    const target = path.basename(match.split('/').pop()?.replace(/['"]/g, '') || "");
+                    if (target && target !== fileName) {
+                        mermaid += `    ${fileName} -.-> ${target}\n`;
+                    }
+                });
+            }
+        });
 
         return mermaid;
     } catch (error: any) {
+        console.error(error);
         return "graph TD\n    Error[Failed to generate diagram]";
     }
   },
@@ -58,14 +82,13 @@ export const TheEye = {
             nodir: true,
         });
 
-        // Content analysis for use-case derivation
         let combinedContext = "";
-        for (const file of files.slice(0, 15)) { // Sample first 15 files
+        for (const file of files.slice(0, 15)) { 
             const content = fs.readFileSync(path.join(directoryPath, file), 'utf8');
             combinedContext += `\nFILE: ${file}\n${content.slice(0, 500)}\n`;
         }
 
-        return combinedContext; // Pass to Pulse for AI interpretation
+        return combinedContext;
     } catch (error: any) {
         return `Use Case Analysis Error: ${error.message}`;
     }
