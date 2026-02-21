@@ -117,6 +117,30 @@ const tools = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "condense_context",
+      description: "Create a token-optimized snapshot of the codebase for external LLMs.",
+      parameters: {
+        type: "object",
+        properties: { path: { type: "string" } },
+        required: ["path"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "architect_redline",
+      description: "Deeply analyze the codebase for logic friction, redundancy, and potential bugs.",
+      parameters: {
+        type: "object",
+        properties: { path: { type: "string" } },
+        required: ["path"],
+      },
+    },
+  },
 ];
 
 export async function getPulse(prompt: string) {
@@ -180,11 +204,25 @@ async function handleChatResponse(message: any, provider: Provider, originalProm
       if (name === "read_file") finalResult += TheHand.read(args.path);
       if (name === "scan_directory") finalResult += JSON.stringify(await TheEye.scan(args.path));
       if (name === "generate_map") finalResult += await TheEye.generateDiagram(args.path);
+      if (name === "condense_context") finalResult += await TheEye.condenseContext(args.path);
       
       if (name === "analyze_use_cases") {
           const rawContext = await TheEye.identifyUseCases(args.path);
           const analysisPrompt = `Based on the following code context, identify 5-7 distinct Business and Technical Use Cases for this project. Format as a clean markdown list:\n\n${rawContext}`;
           return await getPulse(analysisPrompt); 
+      }
+
+      if (name === "architect_redline") {
+          const condensed = await TheEye.condenseContext(args.path);
+          const redlinePrompt = `You are a Senior Software Architect. Perform a 'Redline Audit' on the following codebase snapshot. Identify:
+1. Logic Friction (Complex or confusing flows)
+2. Redundancy (Duplicated code or patterns)
+3. Potential Bugs or Security Gaps
+4. AI Intelligence Grafts (Specific spots where adding an LLM call would add high value)
+
+CODEBASE SNAPSHOT:
+${condensed}`;
+          return await getPulse(redlinePrompt);
       }
     }
     return finalResult || `Task executed via ${provider}.`;

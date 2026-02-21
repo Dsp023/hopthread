@@ -73,6 +73,38 @@ export const TheEye = {
     }
   },
 
+  condenseContext: async (directoryPath: string) => {
+    try {
+        console.log(chalk.dim(`[EYE] Condensing Context for: ${directoryPath}`));
+        const files = await glob("src/**/*.{ts,js,json,md}", {
+            cwd: directoryPath,
+            ignore: ["node_modules/**", ".git/**"],
+            nodir: true,
+        });
+
+        let condenser = "### HOPTHREAD CONTEXT CONDENSER ###\n";
+        condenser += `Project Root: ${directoryPath}\n`;
+        condenser += `Snapshot Date: ${new Date().toISOString()}\n\n`;
+
+        for (const file of files) {
+            const content = fs.readFileSync(path.join(directoryPath, file), 'utf8');
+            // Remove excessive whitespace and comments for token optimization
+            const condensedContent = content
+                .replace(/\/\/.*$/gm, '') // Remove single line comments
+                .replace(/\/\*[\s\S]*?\*\//g, '') // Remove multi-line comments
+                .replace(/^\s*[\r\n]/gm, '') // Remove empty lines
+                .trim();
+
+            condenser += `--- FILE: ${file} ---\n`;
+            condenser += `\`\`\`typescript\n${condensedContent}\n\`\`\`\n\n`;
+        }
+
+        return condenser;
+    } catch (error: any) {
+        return `Condensation Error: ${error.message}`;
+    }
+  },
+
   identifyUseCases: async (directoryPath: string) => {
     try {
         console.log(chalk.dim(`[EYE] Analyzing Use Cases for: ${directoryPath}`));
