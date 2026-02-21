@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { getPulse } from '../core/pulse';
+import { TheEye } from '../tools/eye';
 import chalk from 'chalk';
 import path from 'path';
 
@@ -25,6 +26,7 @@ export function startServer() {
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="//unpkg.com/force-graph"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Plus+Jakarta+Sans:wght@200;400;700;800&display=swap');
         :root {
@@ -41,10 +43,16 @@ export function startServer() {
         .input-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         .input-bar:focus-within { border-color: var(--accent); }
         textarea { background: transparent; border: none; outline: none; color: white; resize: none; width: 100%; font-size: 0.9rem; }
+        
+        #neural-map { position: fixed; inset: 0; z-index: -1; opacity: 0.3; pointer-events: none; transition: all 0.5s ease; }
+        .map-active #neural-map { opacity: 1; z-index: 50; pointer-events: auto; background: var(--bg); }
+        .map-active .main-content, .map-active .sidebar { opacity: 0.1; filter: blur(5px); pointer-events: none; }
     </style>
 </head>
 <body class="flex">
-    <aside class="sidebar p-6">
+    <div id="neural-map"></div>
+    
+    <aside class="sidebar p-6 transition-all duration-500">
         <div class="flex items-center gap-4 mb-12">
             <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-900/40">
                 <i data-lucide="layout-grid" class="text-white w-6 h-6"></i>
@@ -53,8 +61,11 @@ export function startServer() {
         </div>
         <nav class="flex-grow space-y-2">
             <div class="text-[10px] uppercase tracking-widest text-neutral-600 font-bold mb-4">Core System</div>
-            <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10 text-sm font-medium">
-                <i data-lucide="terminal" class="w-4 h-4 text-blue-400"></i> Console Active
+            <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10 text-sm font-medium cursor-pointer hover:bg-white/10 transition-colors" onclick="toggleMap(false)">
+                <i data-lucide="terminal" class="w-4 h-4 text-blue-400"></i> Console
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10 text-sm font-medium cursor-pointer hover:bg-white/10 transition-colors" onclick="toggleMap(true)">
+                <i data-lucide="share-2" class="w-4 h-4 text-emerald-400"></i> Neural Map
             </div>
         </nav>
         <div class="p-4 bg-blue-500/5 rounded-2xl border border-blue-500/10 mt-auto">
@@ -65,10 +76,15 @@ export function startServer() {
         </div>
     </aside>
 
-    <main class="flex-grow flex flex-col">
+    <main class="flex-grow flex flex-col transition-all duration-500 main-content">
         <header class="p-6 border-b border-border bg-surface/50 backdrop-blur-md flex justify-between items-center">
             <div class="text-xs font-bold uppercase tracking-widest text-neutral-500 flex items-center gap-2">
                 <i data-lucide="activity" class="w-4 h-4 text-blue-500"></i> Station: DSP-STATION
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="toggleMap(true)" class="text-[10px] font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-2 rounded-lg hover:bg-emerald-500/20 transition-all">
+                    Visual View
+                </button>
             </div>
         </header>
 
@@ -96,11 +112,73 @@ export function startServer() {
         </div>
     </main>
 
+    <div id="map-close" class="fixed top-8 right-8 z-[100] hidden">
+        <button onclick="toggleMap(false)" class="w-12 h-12 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-all">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+    </div>
+
     <script>
+        let graphInstance = null;
+
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             gsap.to(".message", { opacity: 1, y: 0, duration: 0.8 });
+            initGraph();
+            refreshMap();
         });
+
+        function toggleMap(active) {
+            if (active) {
+                document.body.classList.add('map-active');
+                document.getElementById('map-close').classList.remove('hidden');
+                refreshMap();
+            } else {
+                document.body.classList.remove('map-active');
+                document.getElementById('map-close').classList.add('hidden');
+            }
+        }
+
+        async function refreshMap() {
+            try {
+                const res = await fetch('/api/map');
+                const data = await res.json();
+                if (graphInstance) graphInstance.graphData(data);
+            } catch (err) { console.error("Map Load Failed", err); }
+        }
+
+        function initGraph() {
+            graphInstance = ForceGraph()(document.getElementById('neural-map'))
+                .nodeId('id')
+                .nodeLabel('label')
+                .nodeAutoColorBy('group')
+                .linkDirectionalArrowLength(6)
+                .linkDirectionalArrowRelPos(1)
+                .backgroundColor('#020203')
+                .linkColor(() => '#1a1a1a')
+                .nodeCanvasObject((node, ctx, globalScale) => {
+                    const label = node.label;
+                    const fontSize = 12/globalScale;
+                    ctx.font = \`\${fontSize}px "JetBrains Mono"\`;
+                    const textWidth = ctx.measureText(label).width;
+                    const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2);
+
+                    ctx.fillStyle = 'rgba(10, 10, 12, 0.8)';
+                    ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
+
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = node.color;
+                    ctx.fillText(label, node.x, node.y);
+
+                    node.__bckgDimensions = bckgDimensions;
+                })
+                .nodePointerAreaPaint((node, color, ctx) => {
+                    ctx.fillStyle = color;
+                    const bckgDimensions = node.__bckgDimensions;
+                    bckgDimensions && ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
+                });
+        }
 
         const input = document.getElementById('taskInput');
         input.addEventListener('input', () => {
@@ -130,6 +208,7 @@ export function startServer() {
                 });
                 const data = await res.json();
                 updateMessage(loadingId, data.response);
+                if (task.toLowerCase().includes('map') || task.toLowerCase().includes('visual')) refreshMap();
             } catch (err) {
                 updateMessage(loadingId, "Connection Interrupted: " + err.message);
             }
@@ -172,9 +251,14 @@ export function startServer() {
         `);
     });
 
+    app.get('/api/map', async (c) => {
+        const data = await TheEye.generateDiagram('./');
+        return c.json(data);
+    });
+
     app.post('/api/weave', async (c) => {
         const { task } = await c.req.json();
-        console.log(chalk.cyan(`[WEB] Incoming: ${task}`));
+        console.log(chalk.cyan(`[WEB] Incoming: \${task}`));
         try {
             const response = await getPulse(task);
             return c.json({ response });
@@ -184,6 +268,6 @@ export function startServer() {
     });
 
     const port = 3000;
-    console.log(chalk.blue(`\n🌒 Hopthread UI starting on http://localhost:${port}`));
+    console.log(chalk.blue(\`\\n🌒 Hopthread UI starting on http://localhost:\${port}\`));
     serve({ fetch: app.fetch, port });
 }

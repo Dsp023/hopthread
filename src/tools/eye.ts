@@ -27,49 +27,34 @@ export const TheEye = {
             nodir: true,
         });
 
-        let mermaid = "graph TD\n";
+        const nodes: any[] = [];
+        const links: any[] = [];
         
-        // Define Clusters/Subgraphs based on folder structure
-        const folders = new Set(files.map(f => path.dirname(f)));
-        
-        folders.forEach(folder => {
-            const folderName = folder.replace(/\\/g, '/').replace('src/', '');
-            mermaid += `    subgraph ${folderName.replace(/\//g, '_')}_Cluster [${folderName}]\n`;
-            files.filter(f => path.dirname(f) === folder).forEach(file => {
-                const fileName = path.basename(file, path.extname(file));
-                mermaid += `        ${fileName}["${fileName}${path.extname(file)}"]\n`;
-            });
-            mermaid += "    end\n";
+        files.forEach(file => {
+            const fileName = path.basename(file, path.extname(file));
+            const folder = path.dirname(file).split(path.sep).pop();
+            nodes.push({ id: fileName, group: folder, label: fileName + path.extname(file) });
         });
 
-        // Add standard relationships for Hopthread architecture
-        mermaid += "\n    %% Core Logic Flow\n";
-        mermaid += "    loom --> pulse\n";
-        mermaid += "    server --> pulse\n";
-        mermaid += "    pulse --> hand\n";
-        mermaid += "    pulse --> eye\n";
-        
-        // Dynamic dependency detection (simple import grep)
+        // Dynamic dependency detection
         files.forEach(file => {
             const content = fs.readFileSync(path.join(directoryPath, file), 'utf8');
             const fileName = path.basename(file, path.extname(file));
-            
-            // Look for imports from our own modules
             const importMatches = content.match(/from\s+['"]\.\.?\/([^'"]+)['"]/g);
             if (importMatches) {
                 importMatches.forEach(match => {
                     const target = path.basename(match.split('/').pop()?.replace(/['"]/g, '') || "");
                     if (target && target !== fileName) {
-                        mermaid += `    ${fileName} -.-> ${target}\n`;
+                        links.push({ source: fileName, target: target });
                     }
                 });
             }
         });
 
-        return mermaid;
+        return { nodes, links };
     } catch (error: any) {
         console.error(error);
-        return "graph TD\n    Error[Failed to generate diagram]";
+        return { nodes: [], links: [], error: error.message };
     }
   },
 
