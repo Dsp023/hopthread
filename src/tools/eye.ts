@@ -30,26 +30,35 @@ export const TheEye = {
         const nodes: any[] = [];
         const links: any[] = [];
         
-        files.forEach(file => {
-            const fileName = path.basename(file, path.extname(file));
-            const folder = path.dirname(file).split(path.sep).pop();
-            nodes.push({ id: fileName, group: folder, label: fileName + path.extname(file) });
-        });
+    files.forEach(file => {
+      const fileName = path.basename(file, path.extname(file));
+      const folder = path.dirname(file).split(path.sep).pop();
+      nodes.push({ 
+        id: fileName, 
+        group: folder, 
+        label: fileName + path.extname(file),
+        path: file 
+      });
+    });
 
-        // Dynamic dependency detection
-        files.forEach(file => {
-            const content = fs.readFileSync(path.join(directoryPath, file), 'utf8');
-            const fileName = path.basename(file, path.extname(file));
-            const importMatches = content.match(/from\s+['"]\.\.?\/([^'"]+)['"]/g);
-            if (importMatches) {
-                importMatches.forEach(match => {
-                    const target = path.basename(match.split('/').pop()?.replace(/['"]/g, '') || "");
-                    if (target && target !== fileName) {
-                        links.push({ source: fileName, target: target });
-                    }
-                });
-            }
+    // Dynamic dependency detection
+    files.forEach(file => {
+      const content = fs.readFileSync(path.join(directoryPath, file), 'utf8');
+      const fileName = path.basename(file, path.extname(file));
+      const importMatches = content.match(/from\s+['"]\.\.?\/([^'"]+)['"]/g) || 
+                           content.match(/import\s+.*?\s+from\s+['"]\.\.?\/([^'"]+)['"]/g) ||
+                           content.match(/require\(['"]\.\.?\/([^'"]+)['"]\)/g);
+      
+      if (importMatches) {
+        importMatches.forEach(match => {
+          const cleanMatch = match.replace(/['"\(\)]/g, '').split(' ').pop() || "";
+          const target = path.basename(cleanMatch);
+          if (target && target !== fileName) {
+            links.push({ source: fileName, target: target });
+          }
         });
+      }
+    });
 
         return { nodes, links };
     } catch (error: any) {

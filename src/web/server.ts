@@ -5,6 +5,7 @@ import { getPulse } from '../core/pulse';
 import { TheEye } from '../tools/eye';
 import chalk from 'chalk';
 import path from 'path';
+import fs from 'fs';
 
 export function startServer() {
     const app = new Hono();
@@ -26,6 +27,7 @@ export function startServer() {
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="//unpkg.com/force-graph"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Plus+Jakarta+Sans:wght@200;400;700;800&display=swap');
@@ -47,10 +49,26 @@ export function startServer() {
         #neural-map { position: fixed; inset: 0; z-index: -1; opacity: 0.3; pointer-events: none; transition: all 0.5s ease; }
         .map-active #neural-map { opacity: 1; z-index: 50; pointer-events: auto; background: var(--bg); }
         .map-active .main-content, .map-active .sidebar { opacity: 0.1; filter: blur(5px); pointer-events: none; }
+
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-blur: 10px; z-index: 100; display: none; align-items: center; justify-content: center; padding: 2rem; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; max-width: 800px; width: 100%; max-height: 80vh; overflow-y: auto; padding: 3rem; }
+        .markdown h1 { font-size: 2rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--accent); }
+        .markdown h2 { font-size: 1.25rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; color: white; }
+        .markdown p { margin-bottom: 1rem; color: #a0a0a0; line-height: 1.6; }
+        .markdown ul { list-style: disc; margin-left: 1.5rem; margin-bottom: 1.5rem; }
+        .markdown li { margin-bottom: 0.5rem; color: #e0e0e0; }
     </style>
 </head>
 <body class="flex">
     <div id="neural-map"></div>
+
+    <div id="usecase-modal" class="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div id="usecase-render" class="markdown"></div>
+            <button onclick="toggleModal(false)" class="mt-8 px-6 py-2 bg-neutral-800 rounded-lg text-sm font-bold uppercase tracking-widest">Close</button>
+        </div>
+    </div>
     
     <aside class="sidebar p-6 transition-all duration-500">
         <div class="flex items-center gap-4 mb-12">
@@ -66,6 +84,9 @@ export function startServer() {
             </div>
             <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10 text-sm font-medium cursor-pointer hover:bg-white/10 transition-colors" onclick="toggleMap(true)">
                 <i data-lucide="share-2" class="w-4 h-4 text-emerald-400"></i> Neural Map
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10 text-sm font-medium cursor-pointer hover:bg-white/10 transition-colors" onclick="toggleModal(true)">
+                <i data-lucide="lightbulb" class="w-4 h-4 text-yellow-400"></i> Use Cases
             </div>
         </nav>
         <div class="p-4 bg-blue-500/5 rounded-2xl border border-blue-500/10 mt-auto">
@@ -139,6 +160,22 @@ export function startServer() {
             }
         }
 
+        async function toggleModal(active) {
+            const modal = document.getElementById('usecase-modal');
+            if (active) {
+                const res = await fetch('/api/use-cases');
+                const data = await res.json();
+                document.getElementById('usecase-render').innerHTML = marked.parse(data.content);
+                modal.classList.add('active');
+            } else {
+                modal.classList.remove('active');
+            }
+        }
+
+        function closeModal(e) {
+            toggleModal(false);
+        }
+
         async function refreshMap() {
             try {
                 const res = await fetch('/api/map');
@@ -177,6 +214,9 @@ export function startServer() {
                     ctx.fillStyle = color;
                     const bckgDimensions = node.__bckgDimensions;
                     bckgDimensions && ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
+                })
+                .onNodeClick(node => {
+                    handleWeave({ text: 'Analyze the file ' + node.path });
                 });
         }
 
@@ -190,13 +230,15 @@ export function startServer() {
             if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleWeave(); }
         });
 
-        async function handleWeave() {
-            const task = input.value.trim();
+        async function handleWeave(override = null) {
+            const task = override ? override.text : input.value.trim();
             if (!task) return;
 
             addMessage(task, 'user');
-            input.value = '';
-            input.style.height = 'auto';
+            if (!override) {
+                input.value = '';
+                input.style.height = 'auto';
+            }
 
             const loadingId = addMessage('Processing thread sequence...', 'ai', true);
 
@@ -256,6 +298,15 @@ export function startServer() {
         return c.json(data);
     });
 
+    app.get('/api/use-cases', async (c) => {
+        try {
+            const content = fs.readFileSync('./USE_CASES.md', 'utf8');
+            return c.json({ content });
+        } catch (err) {
+            return c.json({ content: "# Use Cases not found.\nRun `analyze use cases` to generate." });
+        }
+    });
+
     app.post('/api/weave', async (c) => {
         const { task } = await c.req.json();
         console.log(chalk.cyan(`[WEB] Incoming: \${task}`));
@@ -268,6 +319,6 @@ export function startServer() {
     });
 
     const port = 3000;
-    console.log(chalk.blue(\`\\n🌒 Hopthread UI starting on http://localhost:\${port}\`));
+    console.log(chalk.blue(`\n🌒 Hopthread UI starting on http://localhost:${port}`));
     serve({ fetch: app.fetch, port });
 }
