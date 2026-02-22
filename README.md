@@ -46,11 +46,12 @@ Hopthread supports the world's most powerful inference engines. Switch brains on
 ## 🧶 Core Weaves (Features)
 
 1.  **Codebase Synthesis:** Instant high-fidelity architectural summaries.
-2.  **Intelligence Grafts:** Automated identification of "High-Value" AI injection points.
-3.  **Ghost Commits:** Simulated execution and diff previews before system mutation.
-4.  **The Architect's Redline:** Automatic detection of friction, redundancy, and logic bugs.
-5.  **Visual Mapping:** Live-updating Force-Graph and Mermaid.js diagrams.
-6.  **Context Condenser:** Token-optimized snapshots for external LLM analysis.
+2.  **TADOW (✨ Vibe Coding):** High-velocity, aesthetic-first manifestation engine.
+3.  **Intelligence Grafts:** Automated identification of "High-Value" AI injection points.
+4.  **Ghost Commits:** Simulated execution and diff previews before system mutation.
+5.  **The Architect's Redline:** Automatic detection of friction, redundancy, and logic bugs.
+6.  **Visual Mapping:** Live-updating Force-Graph and Mermaid.js diagrams.
+7.  **Context Condenser:** Token-optimized snapshots for external LLM analysis.
 
 ---
 
@@ -83,6 +84,11 @@ Hopthread supports the world's most powerful inference engines. Switch brains on
 ### Check Pulse
 ```bash
 hopthread pulse
+```
+
+### Manifest a Vibe
+```bash
+hopthread tadow "Build a sleek glowing neon login page"
 ```
 
 ### Weave a Task

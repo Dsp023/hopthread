@@ -324,8 +324,13 @@ export function startServer() {
 
     app.post('/api/weave', async (c) => {
         const { task } = await c.req.json();
-        console.log(chalk.cyan(`[WEB] Incoming: \${task}`));
+        console.log(chalk.cyan(`[WEB] Incoming: ${task}`));
         try {
+            if (task.startsWith('tadow ')) {
+                const { Tadow } = await import('../tools/tadow');
+                const response = await Tadow.vibe(task.replace('tadow ', ''));
+                return c.json({ response });
+            }
             const response = await getPulse(task);
             return c.json({ response });
         } catch (err: any) {

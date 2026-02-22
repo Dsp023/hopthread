@@ -117,6 +117,17 @@ program
     startTUI();
   });
 
+program
+  .command("tadow")
+  .argument("<vibe>", "The creative vision to manifest")
+  .description("✨ Vibe coding engine: Fast, aesthetic, and intuitive")
+  .action(async (vibe) => {
+    const { Tadow } = await import("../tools/tadow");
+    const response = await Tadow.vibe(vibe);
+    console.log(chalk.magenta("\n✨ Manifested:"));
+    console.log(chalk.white(response));
+  });
+
 program.parse(process.argv);
 
 if (!process.argv.slice(2).length) {

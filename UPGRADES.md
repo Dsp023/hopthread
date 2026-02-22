@@ -23,6 +23,12 @@ The Loom has been tightened. Today's upgrades focus on **Tactile Intelligence** 
 - **Pre-flight Logs:** Added `[GHOST]` log prefixes to identify simulated system changes.
 - **Diff Preview:** Basic support for proposed file changes without touching the disk.
 
+## ✨ TADOW (Vibe Coding)
+- **Vibe Engine:** A new execution mode for high-velocity, aesthetic-first manifestion.
+- **Style Priority:** Automatically prioritizes sleek UI components (GSAP, Tailwind) and ultra-fast Bun/Hono patterns.
+- **Intuition Mode:** Bypasses rigid architectural audits for pure creative flow.
+- **CLI Command:** `hopthread tadow "vibe description"`.
+
 ## 👁️ The Eye (Tools)
 - **Enhanced Dependency Detection:** Rewrote the regex engine to capture a wider range of import patterns (ESM, CommonJS, and relative paths).
 - **Path Metadata:** Nodes in the visual map now carry full relative path metadata, enabling the "click-to-analyze" feature.
