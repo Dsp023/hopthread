@@ -47,9 +47,10 @@ Hopthread supports the world's most powerful inference engines. Switch brains on
 
 1.  **Codebase Synthesis:** Instant high-fidelity architectural summaries.
 2.  **Intelligence Grafts:** Automated identification of "High-Value" AI injection points.
-3.  **The Architect's Redline:** Automatic detection of friction, redundancy, and logic bugs.
-4.  **Visual Mapping:** Live-updating Force-Graph and Mermaid.js diagrams.
-5.  **Context Condenser:** Token-optimized snapshots for external LLM analysis.
+3.  **Ghost Commits:** Simulated execution and diff previews before system mutation.
+4.  **The Architect's Redline:** Automatic detection of friction, redundancy, and logic bugs.
+5.  **Visual Mapping:** Live-updating Force-Graph and Mermaid.js diagrams.
+6.  **Context Condenser:** Token-optimized snapshots for external LLM analysis.
 
 ---
 

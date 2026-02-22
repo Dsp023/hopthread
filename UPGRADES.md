@@ -18,6 +18,11 @@ The Loom has been tightened. Today's upgrades focus on **Tactile Intelligence** 
 - **Graft Glower:** Neural Map nodes now glow gold if the scanner identifies them as graft candidates.
 - **Contextual Weaving:** Clicking a gold node in the UI triggers a specialized "Identify intelligence grafts" thread rather than a general analysis.
 
+## ⚡ Ghost Commits (Safety)
+- **Dry-Run Engine:** Integrated a simulation mode into `TheHand`.
+- **Pre-flight Logs:** Added `[GHOST]` log prefixes to identify simulated system changes.
+- **Diff Preview:** Basic support for proposed file changes without touching the disk.
+
 ## 👁️ The Eye (Tools)
 - **Enhanced Dependency Detection:** Rewrote the regex engine to capture a wider range of import patterns (ESM, CommonJS, and relative paths).
 - **Path Metadata:** Nodes in the visual map now carry full relative path metadata, enabling the "click-to-analyze" feature.

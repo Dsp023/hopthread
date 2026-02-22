@@ -160,6 +160,16 @@ export const TheEye = {
             }
           }
 
+          if (line.match(/process\.env\./) && !line.match(/\|\|/)) {
+            grafts.push({
+              file,
+              line: index + 1,
+              type: 'config',
+              reason: 'Unprotected environment variable access',
+              context: line.trim()
+            });
+          }
+
           if (line.length > 120) {
             grafts.push({
               file,
