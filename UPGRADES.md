@@ -7,6 +7,12 @@ The Loom has been tightened. Today's upgrades focus on **Tactile Intelligence** 
 - **Use Case Modal:** Added a dedicated "Use Cases" view. It fetches `USE_CASES.md`, renders it as high-fidelity Markdown, and displays it in a sleek, glass-morphism modal.
 - **Live Markdown Rendering:** Integrated `marked.js` for real-time rendering of documentation within the console.
 
+## ⌨️ Neural TUI (Terminal)
+- **Grid-Based Layout:** Implemented using `blessed-contrib` for a high-density command center.
+- **Thread Stream:** A real-time scrolling log of user inputs and AI pulse responses.
+- **Codebase Tree:** A visual directory explorer integrated into the terminal.
+- **Async Weaving:** Direct access to the `getPulse` core from the terminal.
+
 ## 👁️ The Eye (Tools)
 - **Enhanced Dependency Detection:** Rewrote the regex engine to capture a wider range of import patterns (ESM, CommonJS, and relative paths).
 - **Path Metadata:** Nodes in the visual map now carry full relative path metadata, enabling the "click-to-analyze" feature.

@@ -109,6 +109,14 @@ program
     startServer();
   });
 
+program
+  .command("tui")
+  .description("Launch the Hopthread Neural TUI")
+  .action(async () => {
+    const { startTUI } = await import("../web/tui");
+    startTUI();
+  });
+
 program.parse(process.argv);
 
 if (!process.argv.slice(2).length) {
