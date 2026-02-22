@@ -1,4 +1,4 @@
-#  Hopthread 🧶 
+# Hopthread 🧶
 
 **Hopthread** is a high-fidelity, agentic AI framework built for the next generation of digital ecosystems. It is designed to be the "thread" that connects intelligent thought (LLMs) to technical execution (System/OS).
 
@@ -8,17 +8,33 @@ Built with **Bun** for ultra-fast performance and multi-model support for high-v
 
 ## 🏗️ Architecture
 
-Hopthread is structured into three core modules:
+Hopthread is structured into four core modules:
 
 1.  **The Loom (CLI):** The command-line interface where threads are spun.
 2.  **The Pulse (AI Brain):** The core agentic loop with native function-calling and multi-provider support.
-3.  **The Hand (System Tools):** The execution layer that allows the agent to run shell commands and manipulate the filesystem.
+3.  **The Eye (Analysis Tools):** The sensory layer that scans, maps, and analyzes codebase architecture.
+4.  **The Hand (System Tools):** The execution layer that allows the agent to run shell commands and manipulate the filesystem.
+
+---
+
+## 📺 Tactical Command Centers
+
+Hopthread provides dual-layered operational control:
+
+- **Neural Console (Web):** A high-fidelity, interactive dashboard.
+    - **Live Neural Map:** Real-time Force-Graph dependency mapping.
+    - **Intelligence Glow:** Visual indicators (gold nodes) for AI enhancement potential.
+    - **Tactile Analysis:** Click nodes to trigger deep contextual file audits.
+    - **Use Case Modal:** Instant Markdown-rendered project discovery.
+- **Neural TUI (Terminal):** A high-density command center for terminal-exclusive workflows.
+    - **Thread Stream:** Real-time scrolling log of agent thought sequences.
+    - **Codebase Tree:** Live directory exploration inside the terminal.
 
 ---
 
 ## 🧠 Multi-Model Intelligence
 
-Hopthread now supports the world's most powerful inference engines. You can switch your agent's brain on the fly:
+Hopthread supports the world's most powerful inference engines. Switch brains on the fly:
 
 - **Groq:** Llama-3.3-70B for low-latency synthesis.
 - **NVIDIA NIM:** Kimi-K2.5 for deep architectural reasoning.
@@ -27,15 +43,13 @@ Hopthread now supports the world's most powerful inference engines. You can swit
 
 ---
 
-## 🧶 The Four Weaves (Killer Features)
+## 🧶 Core Weaves (Features)
 
-Hopthread doesn't just read code; it weaves it into actionable intelligence:
-
-1.  **Codebase Synthesis (BRIEFING.md):** Instant high-fidelity architectural summaries of any folder.
-2.  **The Architect's Redline:** Automatic detection of friction, redundant logic, and potential bugs.
-3.  **Visual Mapping (DIAGRAM.md):** Auto-generated Mermaid.js diagrams of module relationships.
-4.  **Context Condenser (.ht-context):** A token-optimized snapshot for pasting into other LLMs (Claude/ChatGPT).
-5.  **Intelligence Graft:** Targeted suggestions for where and how to integrate AI into your specific app.
+1.  **Codebase Synthesis:** Instant high-fidelity architectural summaries.
+2.  **Intelligence Grafts:** Automated identification of "High-Value" AI injection points.
+3.  **The Architect's Redline:** Automatic detection of friction, redundancy, and logic bugs.
+4.  **Visual Mapping:** Live-updating Force-Graph and Mermaid.js diagrams.
+5.  **Context Condenser:** Token-optimized snapshots for external LLM analysis.
 
 ---
 
@@ -55,32 +69,32 @@ Hopthread doesn't just read code; it weaves it into actionable intelligence:
     bun link
     ```
 
-2.  **Configure from Terminal:**
+2.  **Configure:**
     ```bash
     hopthread config groq_key <your_key>
-    hopthread config nvidia_key <your_key>
-    hopthread config provider nvidia  # Set active brain to Kimi K2.5
+    hopthread config provider groq
     ```
 
 ---
 
-##  Usage
+## Usage
 
-### Check System Pulse
+### Check Pulse
 ```bash
 hopthread pulse
 ```
 
-### Weave a Full Synthesis
+### Weave a Task
 ```bash
-hopthread weave "Synthesize the codebase at ./src"
+hopthread weave "Synthesize this codebase"
 ```
 
-### Launch the Tactile Console
+### Launch Tactical UI
 ```bash
-hopthread ui
+hopthread ui   # Web Dashboard
+hopthread tui  # Terminal Dashboard
 ```
 
 ---
 
-Built by **Dsp**.
+Built by **Dsp** 🌒
