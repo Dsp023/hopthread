@@ -141,6 +141,18 @@ const tools = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "identify_intelligence_grafts",
+      description: "Scan the codebase to identify specific spots where adding an LLM call or AI logic would add high value.",
+      parameters: {
+        type: "object",
+        properties: { path: { type: "string" } },
+        required: ["path"],
+      },
+    },
+  },
 ];
 
 export async function getPulse(prompt: string) {
@@ -210,6 +222,17 @@ async function handleChatResponse(message: any, provider: Provider, originalProm
           const rawContext = await TheEye.identifyUseCases(args.path);
           const analysisPrompt = `Based on the following code context, identify 5-7 distinct Business and Technical Use Cases for this project. Format as a clean markdown list:\n\n${rawContext}`;
           return await getPulse(analysisPrompt); 
+      }
+
+      if (name === "identify_intelligence_grafts") {
+          const rawGrafts = await TheEye.identifyGrafts(args.path);
+          const graftPrompt = `You are a Senior AI Architect. Review the following "Intelligence Graft" candidates identified by the system scanner. For each one, provide a specific suggestion on how an LLM or AI logic could enhance this code.
+
+CANDIDATES:
+${JSON.stringify(rawGrafts, null, 2)}
+
+Format your response as a clean markdown table with columns: File, Line, Reason, and AI Graft Suggestion.`;
+          return await getPulse(graftPrompt);
       }
 
       if (name === "architect_redline") {

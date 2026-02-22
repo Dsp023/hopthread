@@ -118,5 +118,64 @@ export const TheEye = {
     } catch (error: any) {
         return `Use Case Analysis Error: ${error.message}`;
     }
+  },
+
+  identifyGrafts: async (directoryPath: string) => {
+    try {
+      console.log(chalk.dim(`[EYE] Identifying Intelligence Grafts for: ${directoryPath}`));
+      const files = await glob("src/**/*.{ts,js}", {
+        cwd: directoryPath,
+        nodir: true,
+      });
+
+      const grafts: any[] = [];
+
+      for (const file of files) {
+        const content = fs.readFileSync(path.join(directoryPath, file), 'utf8');
+        const lines = content.split('\n');
+        
+        // Basic heuristic: Long functions, complex logic, or TODOs
+        lines.forEach((line, index) => {
+          if (line.includes('TODO:') || line.includes('FIXME:')) {
+            grafts.push({
+              file,
+              line: index + 1,
+              type: 'debt',
+              reason: 'Unresolved technical debt',
+              context: line.trim()
+            });
+          }
+          
+          if (line.match(/async\s+function|const\s+\w+\s*=\s*async/)) {
+            // Check for missing error handling or complex async flows
+            const scope = lines.slice(index, index + 5).join('\n');
+            if (!scope.includes('try') && !scope.includes('catch')) {
+              grafts.push({
+                file,
+                line: index + 1,
+                type: 'safety',
+                reason: 'Async operation missing try/catch block',
+                context: line.trim()
+              });
+            }
+          }
+
+          if (line.length > 120) {
+            grafts.push({
+              file,
+              line: index + 1,
+              type: 'complexity',
+              reason: 'High line complexity / density',
+              context: line.trim()
+            });
+          }
+        });
+      }
+
+      return grafts;
+    } catch (error: any) {
+      console.error(error);
+      return [];
+    }
   }
 };

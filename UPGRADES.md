@@ -13,6 +13,11 @@ The Loom has been tightened. Today's upgrades focus on **Tactile Intelligence** 
 - **Codebase Tree:** A visual directory explorer integrated into the terminal.
 - **Async Weaving:** Direct access to the `getPulse` core from the terminal.
 
+## 🧬 Intelligence Grafts (AI Logic)
+- **Automated Scanning:** Integrated logic into `TheEye` to identify "High Value" AI injection points (long functions, complex async, TODOs).
+- **Graft Glower:** Neural Map nodes now glow gold if the scanner identifies them as graft candidates.
+- **Contextual Weaving:** Clicking a gold node in the UI triggers a specialized "Identify intelligence grafts" thread rather than a general analysis.
+
 ## 👁️ The Eye (Tools)
 - **Enhanced Dependency Detection:** Rewrote the regex engine to capture a wider range of import patterns (ESM, CommonJS, and relative paths).
 - **Path Metadata:** Nodes in the visual map now carry full relative path metadata, enabling the "click-to-analyze" feature.

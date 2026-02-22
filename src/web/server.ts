@@ -216,7 +216,11 @@ export function startServer() {
                     bckgDimensions && ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
                 })
                 .onNodeClick(node => {
-                    handleWeave({ text: 'Analyze the file ' + node.path });
+                    if (node.grafts && node.grafts.length > 0) {
+                        handleWeave({ text: 'Identify intelligence grafts for ' + node.path });
+                    } else {
+                        handleWeave({ text: 'Analyze the file ' + node.path });
+                    }
                 });
         }
 
@@ -295,6 +299,17 @@ export function startServer() {
 
     app.get('/api/map', async (c) => {
         const data = await TheEye.generateDiagram('./');
+        const grafts = await TheEye.identifyGrafts('./');
+        
+        // Add graft data to nodes
+        data.nodes = data.nodes.map(node => {
+            const nodeGrafts = grafts.filter(g => g.file === node.path);
+            if (nodeGrafts.length > 0) {
+                return { ...node, grafts: nodeGrafts, color: '#facc15' }; // Glow gold
+            }
+            return node;
+        });
+
         return c.json(data);
     });
 
