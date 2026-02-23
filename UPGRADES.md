@@ -36,6 +36,7 @@ The Loom has been tightened. Today's upgrades focus on **Tactile Intelligence** 
 
 ## 👁️ The Eye (Tools)
 - **Enhanced Dependency Detection:** Rewrote the regex engine to capture a wider range of import patterns (ESM, CommonJS, and relative paths).
+- **Complexity Heuristics:** Updated `identifyGrafts` to detect "Long Methods" (functions over 50 lines), flagging them for potential AI-driven refactoring or decomposition.
 - **Path Metadata:** Nodes in the visual map now carry full relative path metadata, enabling the "click-to-analyze" feature.
 
 ## 🛠️ CLI & Stability

@@ -170,6 +170,30 @@ export const TheEye = {
             });
           }
 
+          // Heuristic: Large functions (over 50 lines of code)
+          if (line.match(/function|=>\s*{/)) {
+            let braceCount = 0;
+            let startLine = index;
+            let endLine = index;
+            for (let i = index; i < lines.length; i++) {
+                if (lines[i].includes('{')) braceCount++;
+                if (lines[i].includes('}')) braceCount--;
+                if (braceCount === 0 && i > index) {
+                    endLine = i;
+                    break;
+                }
+            }
+            if (endLine - startLine > 50) {
+                grafts.push({
+                    file,
+                    line: startLine + 1,
+                    type: 'refactor',
+                    reason: 'High function complexity (Long Method)',
+                    context: line.trim()
+                });
+            }
+          }
+
           if (line.length > 120) {
             grafts.push({
               file,
