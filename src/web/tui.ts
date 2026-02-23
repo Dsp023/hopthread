@@ -12,6 +12,9 @@ export function startTUI() {
 
     const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
 
+    // --- State ---
+    const chatHistory: any[] = [];
+
     // --- Components ---
 
     const log = grid.set(0, 0, 8, 8, contrib.log, {
@@ -66,8 +69,16 @@ export function startTUI() {
 
         log.log(chalk.dim(`[SYSTEM]: Weaving thread...`));
         try {
-            const response = await getPulse(value);
+            const response = await getPulse(value, chatHistory);
             log.log(chalk.green(`[PULSE]: ${response}`));
+            
+            // Persist to history
+            chatHistory.push({ role: "user", content: value });
+            chatHistory.push({ role: "assistant", content: response });
+            
+            // Limit history to keep context tight
+            if (chatHistory.length > 20) chatHistory.splice(0, 2);
+            
         } catch (err: any) {
             log.log(chalk.red(`[ERROR]: ${err.message}`));
         }
