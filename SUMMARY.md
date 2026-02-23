@@ -6,10 +6,10 @@
 - **Vibe:** Kinetic, Sharp, Deep-Space Aesthetic.
 
 ## 🛠️ Recent Upgrades (2026-02-23)
-- **Neural Memory:** Implemented conversation history persistence for `getPulse`. Multi-step threads now maintain state and context across tool calls.
+- **Hyper-Interface (UI):** Overhauled the Neural Console with Markdown rendering and tactile "One-Click Copy" code blocks.
+- **Neural Memory:** Implemented conversation history persistence for `getPulse`. Multi-step threads now maintain state across the CLI, TUI, and Web Console.
 - **TADOW [Enhanced]:** Injected Kinetic Motion heuristics. The engine now prioritizes "living" codebases (Framer Motion, GSAP) by default.
 - **Intelligence Grafts:** Automated technical debt and "Long Method" complexity scanning (50+ lines) is now active.
-- **System-Aware Vibe:** Prompt engineering now includes global workspace context for more precise digital manifestations.
 - **Neural TUI:** Full terminal command center deployed with persistent chat history.
 
 ## 🚀 Execution Commands
@@ -19,4 +19,4 @@
 - `hopthread pulse` - Real-time system analysis.
 
 ---
-*Last Updated: 2026-02-23 17:40 UTC*
+*Last Updated: 2026-02-23 17:45 UTC*
