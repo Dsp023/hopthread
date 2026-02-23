@@ -155,7 +155,7 @@ const tools = [
   },
 ];
 
-export async function getPulse(prompt: string) {
+export async function getPulse(prompt: string, history: any[] = []) {
   const provider = getActiveProvider();
   console.log(chalk.dim(`[PULSE] Using provider: ${provider}`));
 
@@ -169,25 +169,27 @@ export async function getPulse(prompt: string) {
 5. **Tactile Dashboard**: Manage background AI workers through the Neural Console.`;
   }
 
+  const messages = [...history, { role: "user", content: prompt }];
+
   try {
     if (provider === "groq") {
       const groq = getGroqClient();
       const response = await groq.chat.completions.create({
         model: "llama-3.3-70b-versatile",
-        messages: [{ role: "user", content: prompt }],
+        messages: messages as any,
         tools: tools as any,
       });
-      return handleChatResponse(response.choices[0].message, "groq", prompt);
+      return handleChatResponse(response.choices[0].message, "groq", prompt, history);
     } 
     
     if (provider === "nvidia") {
       const nvidia = getNvidiaClient();
       const response = await nvidia.chat.completions.create({
         model: "moonshotai/kimi-k2.5",
-        messages: [{ role: "user", content: prompt }],
+        messages: messages as any,
         tools: tools as any,
       });
-      return handleChatResponse(response.choices[0].message, "nvidia", prompt);
+      return handleChatResponse(response.choices[0].message, "nvidia", prompt, history);
     }
 
     if (provider === "google") {
@@ -203,7 +205,7 @@ export async function getPulse(prompt: string) {
   }
 }
 
-async function handleChatResponse(message: any, provider: Provider, originalPrompt: string) {
+async function handleChatResponse(message: any, provider: Provider, originalPrompt: string, history: any[] = []) {
   if (message.tool_calls) {
       let finalResult = "";
     for (const toolCall of message.tool_calls) {
@@ -221,7 +223,7 @@ async function handleChatResponse(message: any, provider: Provider, originalProm
       if (name === "analyze_use_cases") {
           const rawContext = await TheEye.identifyUseCases(args.path);
           const analysisPrompt = `Based on the following code context, identify 5-7 distinct Business and Technical Use Cases for this project. Format as a clean markdown list:\n\n${rawContext}`;
-          return await getPulse(analysisPrompt); 
+          return await getPulse(analysisPrompt, [...history, { role: "assistant", content: message.content || "", tool_calls: message.tool_calls }]); 
       }
 
       if (name === "identify_intelligence_grafts") {
@@ -232,7 +234,7 @@ CANDIDATES:
 ${JSON.stringify(rawGrafts, null, 2)}
 
 Format your response as a clean markdown table with columns: File, Line, Reason, and AI Graft Suggestion.`;
-          return await getPulse(graftPrompt);
+          return await getPulse(graftPrompt, [...history, { role: "assistant", content: message.content || "", tool_calls: message.tool_calls }]);
       }
 
       if (name === "architect_redline") {
@@ -245,7 +247,7 @@ Format your response as a clean markdown table with columns: File, Line, Reason,
 
 CODEBASE SNAPSHOT:
 ${condensed}`;
-          return await getPulse(redlinePrompt);
+          return await getPulse(redlinePrompt, [...history, { role: "assistant", content: message.content || "", tool_calls: message.tool_calls }]);
       }
     }
     return finalResult || `Task executed via ${provider}.`;

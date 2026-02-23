@@ -18,6 +18,10 @@ The Loom has been tightened. Today's upgrades focus on **Tactile Intelligence** 
 - **Graft Glower:** Neural Map nodes now glow gold if the scanner identifies them as graft candidates.
 - **Contextual Weaving:** Clicking a gold node in the UI triggers a specialized "Identify intelligence grafts" thread rather than a general analysis.
 
+## 🧵 Neural Memory (Persistence)
+- **Thread History:** Implemented async history tracking in `getPulse`. Threads now carry conversation context across multi-step tool calls.
+- **Context Injection:** Improved memory injection for sub-agent orchestration.
+
 ## ⚡ Ghost Commits (Safety)
 - **Dry-Run Engine:** Integrated a simulation mode into `TheHand`.
 - **Pre-flight Logs:** Added `[GHOST]` log prefixes to identify simulated system changes.
