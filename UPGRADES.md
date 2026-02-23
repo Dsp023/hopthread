@@ -26,6 +26,7 @@ The Loom has been tightened. Today's upgrades focus on **Tactile Intelligence** 
 ## ✨ TADOW (Vibe Coding)
 - **Vibe Engine:** A new execution mode for high-velocity, aesthetic-first manifestion.
 - **Style Priority:** Automatically prioritizes sleek UI components (GSAP, Tailwind) and ultra-fast Bun/Hono patterns.
+- **Kinetic Integration:** Updated heuristics to inject Framer Motion and GSAP interactions by default for "Manifested" code.
 - **Intuition Mode:** Bypasses rigid architectural audits for pure creative flow.
 - **CLI Command:** `hopthread tadow "vibe description"`.
 
