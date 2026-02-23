@@ -20,7 +20,13 @@ The Loom has been tightened. Today's upgrades focus on **Tactile Intelligence** 
 
 ## 🧵 Neural Memory (Persistence)
 - **Thread History:** Implemented async history tracking in `getPulse`. Threads now carry conversation context across multi-step tool calls.
+- **Web Console Persistence:** Integrated history tracking into the Neural Console UI. Multi-turn weaving sessions now maintain state.
 - **Context Injection:** Improved memory injection for sub-agent orchestration.
+
+## 🎨 Hyper-Interface (UI)
+- **Neural Markdown:** Integrated `marked.js` rendering for Pulse responses. The console now displays rich text, tables, and formatted lists.
+- **Tactile Code Blocks:** Upgraded code snippets with deep-space themes and "One-Click Copy" functionality.
+- **Kinetic UI Sync:** Injected GSAP transitions for smoother message manifestation and modal flows.
 
 ## ⚡ Ghost Commits (Safety)
 - **Dry-Run Engine:** Integrated a simulation mode into `TheHand`.

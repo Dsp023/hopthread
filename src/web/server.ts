@@ -58,6 +58,12 @@ export function startServer() {
         .markdown p { margin-bottom: 1rem; color: #a0a0a0; line-height: 1.6; }
         .markdown ul { list-style: disc; margin-left: 1.5rem; margin-bottom: 1.5rem; }
         .markdown li { margin-bottom: 0.5rem; color: #e0e0e0; }
+
+        /* UPGRADE: Code Block Styling */
+        pre { background: #050505 !important; padding: 1.5rem; border-radius: 12px; border: 1px solid #222; margin: 1.5rem 0; overflow-x: auto; position: relative; }
+        code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #3b82f6; }
+        .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; background: #111; border: 1px solid #333; color: #666; font-size: 10px; padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .copy-btn:hover { background: #222; color: white; }
     </style>
 </head>
 <body class="flex">
@@ -141,6 +147,7 @@ export function startServer() {
 
     <script>
         let graphInstance = null;
+        let chatHistory = [];
 
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
@@ -205,7 +212,7 @@ export function startServer() {
 
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillStyle = node.color;
+                    ctx.fillStyle = node.color || '#3b82f6';
                     ctx.fillText(label, node.x, node.y);
 
                     node.__bckgDimensions = bckgDimensions;
@@ -250,9 +257,15 @@ export function startServer() {
                 const res = await fetch('/api/weave', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ task })
+                    body: JSON.stringify({ task, history: chatHistory })
                 });
                 const data = await res.json();
+                
+                // Update History
+                chatHistory.push({ role: "user", content: task });
+                chatHistory.push({ role: "assistant", content: data.response });
+                if (chatHistory.length > 20) chatHistory.splice(0, 2);
+
                 updateMessage(loadingId, data.response);
                 if (task.toLowerCase().includes('map') || task.toLowerCase().includes('visual')) refreshMap();
             } catch (err) {
@@ -275,11 +288,27 @@ export function startServer() {
                 </div>
                 <div class="flex-grow">
                     <div class="text-[10px] font-extrabold uppercase tracking-widest text-blue-400 mb-2">\${tag}</div>
-                    <div class="text-sm leading-relaxed \${isLoading ? 'animate-pulse opacity-50' : ''}">\${text}</div>
+                    <div class="text-sm leading-relaxed \${isLoading ? 'animate-pulse opacity-50' : ''} markdown">
+                        \${marked.parse(text)}
+                    </div>
                 </div>
             \`;
             document.getElementById('chatThread').appendChild(div);
             lucide.createIcons();
+            
+            // Render code copy buttons
+            div.querySelectorAll('pre').forEach(pre => {
+                const btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.innerText = 'COPY';
+                btn.onclick = () => {
+                    navigator.clipboard.writeText(pre.innerText.replace('COPY', ''));
+                    btn.innerText = 'COPIED';
+                    setTimeout(() => btn.innerText = 'COPY', 2000);
+                };
+                pre.appendChild(btn);
+            });
+
             gsap.to(div, { opacity: 1, y: 0, duration: 0.4 });
             document.getElementById('chatViewport').scrollTo(0, document.getElementById('chatViewport').scrollHeight);
             return id;
@@ -288,8 +317,22 @@ export function startServer() {
         function updateMessage(id, text) {
             const msg = document.getElementById(id);
             const content = msg.querySelector('.text-sm');
-            content.innerText = text;
+            content.innerHTML = marked.parse(text);
             content.classList.remove('animate-pulse', 'opacity-50');
+            
+            msg.querySelectorAll('pre').forEach(pre => {
+                if (!pre.querySelector('.copy-btn')) {
+                    const btn = document.createElement('button');
+                    btn.className = 'copy-btn';
+                    btn.innerText = 'COPY';
+                    btn.onclick = () => {
+                        navigator.clipboard.writeText(pre.innerText.replace('COPY', ''));
+                        btn.innerText = 'COPIED';
+                        setTimeout(() => btn.innerText = 'COPY', 2000);
+                    };
+                    pre.appendChild(btn);
+                }
+            });
         }
     </script>
 </body>
@@ -323,15 +366,15 @@ export function startServer() {
     });
 
     app.post('/api/weave', async (c) => {
-        const { task } = await c.req.json();
-        console.log(chalk.cyan(`[WEB] Incoming: ${task}`));
+        const { task, history } = await c.req.json();
+        console.log(chalk.cyan(`[WEB] Incoming: \${task}`));
         try {
             if (task.startsWith('tadow ')) {
                 const { Tadow } = await import('../tools/tadow');
                 const response = await Tadow.vibe(task.replace('tadow ', ''));
                 return c.json({ response });
             }
-            const response = await getPulse(task);
+            const response = await getPulse(task, history || []);
             return c.json({ response });
         } catch (err: any) {
             return c.json({ response: "Error: " + err.message }, 500);
@@ -339,6 +382,6 @@ export function startServer() {
     });
 
     const port = 3000;
-    console.log(chalk.blue(`\n🌒 Hopthread UI starting on http://localhost:${port}`));
+    console.log(chalk.blue(`\n🌒 Hopthread UI starting on http://localhost:\${port}`));
     serve({ fetch: app.fetch, port });
 }
