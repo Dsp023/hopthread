@@ -145,6 +145,24 @@ program
     await WikiEngine.generate("./");
   });
 
+program
+  .command("audit")
+  .description("🛡️ Guard the codebase: Run a security vulnerability scan")
+  .action(async () => {
+    const { TheGuardian } = await import("../tools/security/guardian");
+    await TheGuardian.audit();
+  });
+
+program
+  .command("seal")
+  .argument("<key>", "Secret key name")
+  .argument("<value>", "Secret value")
+  .description("🗝️ Vault: Securely store a secret")
+  .action(async (key, value) => {
+    const { TheVault } = await import("../tools/security/vault");
+    await TheVault.seal(key, value);
+  });
+
 program.parse(process.argv);
 
 if (!process.argv.slice(2).length) {
