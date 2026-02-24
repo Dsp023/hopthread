@@ -18,20 +18,20 @@ export function startTUI() {
     // --- Components ---
 
     const log = grid.set(0, 0, 8, 8, contrib.log, {
-        fg: "green",
-        selectedFg: "green",
+        fg: "#87CEEB", // Light Blue (SkyBlue)
+        selectedFg: "#87CEEB",
         label: ' Thread Stream ',
-        border: { type: 'line', fg: 'cyan' }
+        border: { type: 'line', fg: '#00BFFF' } // Deep Sky Blue for border
     });
 
     const tree = grid.set(0, 8, 12, 4, contrib.tree, {
         label: ' Codebase Tree ',
-        border: { type: 'line', fg: 'white' }
+        border: { type: 'line', fg: '#87CEEB' }
     });
 
     const input = grid.set(8, 0, 4, 8, blessed.textbox, {
         label: ' Command Input (Press [Enter] to weave, [Esc] to quit) ',
-        border: { type: 'line', fg: 'yellow' },
+        border: { type: 'line', fg: '#00BFFF' },
         inputOnFocus: true
     });
 
@@ -95,7 +95,7 @@ export function startTUI() {
     input.focus();
 
     // Initial Load
-    log.log(chalk.cyan("🌒 Hopthread Neural TUI Active. Station: DSP-STATION"));
+    log.log(chalk.hex('#87CEEB')("🌒 Hopthread Neural TUI Active. Station: DSP-STATION"));
     log.log(chalk.dim("Ready to weave. Type a command below."));
     refreshTree();
 

@@ -10,7 +10,7 @@
 - **Neural Memory:** Implemented conversation history persistence for `getPulse`. Multi-step threads now maintain state across the CLI, TUI, and Web Console.
 - **TADOW [Enhanced]:** Injected Kinetic Motion heuristics. The engine now prioritizes "living" codebases (Framer Motion, GSAP) by default.
 - **Intelligence Grafts:** Automated technical debt and "Long Method" complexity scanning (50+ lines) is now active.
-- **Neural TUI:** Full terminal command center deployed with persistent chat history.
+- **Neural TUI:** Full terminal command center deployed with persistent chat history. Added Light Blue theme for a cooler workspace vibe.
 
 ## 🚀 Execution Commands
 - `hopthread tadow` - Manifest creative vision.
