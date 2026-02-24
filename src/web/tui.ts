@@ -62,6 +62,17 @@ export function startTUI() {
     input.on('submit', async (value: string) => {
         if (!value.trim()) return;
         
+        if (value.startsWith('/')) {
+            const cmd = value.slice(1).toLowerCase();
+            if (cmd === 'clear') {
+                log.setContent('');
+                input.clearValue();
+                screen.render();
+                return;
+            }
+            // Add more slash commands here
+        }
+
         log.log(chalk.blue(`[USER]: ${value}`));
         input.clearValue();
         input.focus();

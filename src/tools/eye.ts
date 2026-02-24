@@ -45,6 +45,10 @@ export const TheEye = {
     files.forEach(file => {
       const content = fs.readFileSync(path.join(directoryPath, file), 'utf8');
       const fileName = path.basename(file, path.extname(file));
+      
+      // Complexity Score (Basic)
+      const score = content.length / 100 + (content.match(/import/g)?.length || 0) * 5;
+      
       const importMatches = content.match(/from\s+['"]\.\.?\/([^'"]+)['"]/g) || 
                            content.match(/import\s+.*?\s+from\s+['"]\.\.?\/([^'"]+)['"]/g) ||
                            content.match(/require\(['"]\.\.?\/([^'"]+)['"]\)/g);

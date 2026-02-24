@@ -16,6 +16,15 @@ program
   .version(version);
 
 program
+  .command("ghost")
+  .argument("<task>", "The task to simulate")
+  .description("👻 Ghost Mode: Simulate a weave without touching the disk")
+  .action(async (task) => {
+    const { GhostEngine } = await import("../tools/ghost");
+    await GhostEngine.simulate(task);
+  });
+
+program
   .command("pulse")
   .description("Check the heartbeat of the Hopthread system")
   .action(() => {
