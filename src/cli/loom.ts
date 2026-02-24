@@ -128,6 +128,14 @@ program
     console.log(chalk.white(response));
   });
 
+program
+  .command("wiki")
+  .description("Generate the high-fidelity Neural Wiki for the codebase")
+  .action(async () => {
+    const { WikiEngine } = await import("../tools/wiki/engine");
+    await WikiEngine.generate("./");
+  });
+
 program.parse(process.argv);
 
 if (!process.argv.slice(2).length) {
