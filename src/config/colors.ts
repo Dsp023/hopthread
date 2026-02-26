@@ -1,0 +1,1 @@
+export const colors = { primary: '#0a0a0a', accent: '#00ffcc', warning: '#ffcc00' };
