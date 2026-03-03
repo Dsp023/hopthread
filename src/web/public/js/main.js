@@ -145,3 +145,4 @@ document.addEventListener('DOMContentLoaded', () => {
     window.weave = weave;
 });
 // Node-Click Analysis implemented
+// Use Case Modal logic added
