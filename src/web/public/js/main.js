@@ -146,3 +146,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 // Node-Click Analysis implemented
 // Use Case Modal logic added
+// Live Markdown rendering via marked.js initialized
