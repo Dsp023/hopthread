@@ -385,3 +385,4 @@ export function startServer() {
     console.log(chalk.blue(`\n🌒 Hopthread UI starting on http://localhost:\${port}`));
     serve({ fetch: app.fetch, port });
 }
+// Web Console state persistence logic
