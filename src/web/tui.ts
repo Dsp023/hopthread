@@ -113,3 +113,4 @@ export function startTUI() {
     screen.render();
 }
 // Grid layout setup with blessed-contrib
+// Real-time thread stream log initialized
