@@ -112,3 +112,4 @@ export function startTUI() {
 
     screen.render();
 }
+// Grid layout setup with blessed-contrib
