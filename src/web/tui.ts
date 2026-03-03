@@ -114,3 +114,4 @@ export function startTUI() {
 }
 // Grid layout setup with blessed-contrib
 // Real-time thread stream log initialized
+// Codebase directory explorer added
