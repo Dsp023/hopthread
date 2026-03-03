@@ -254,3 +254,4 @@ ${condensed}`;
   }
   return message.content;
 }
+// Thread History tracking layer enabled
