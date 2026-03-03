@@ -148,3 +148,4 @@ document.addEventListener('DOMContentLoaded', () => {
 // Use Case Modal logic added
 // Live Markdown rendering via marked.js initialized
 // Graft Glower for nodes added
+// Contextual weaving dispatch added
