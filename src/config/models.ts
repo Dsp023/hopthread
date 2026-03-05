@@ -1,3 +1,4 @@
+// Models config
 export const AI_MODELS = {
   default: 'gpt-4o',
   fallback: 'gpt-3.5-turbo',
