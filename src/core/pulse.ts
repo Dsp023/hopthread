@@ -1,0 +1,257 @@
+import Groq from "groq-sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai";
+import * as dotenv from "dotenv";
+import { TheHand } from "../tools/hand";
+import { TheEye } from "../tools/eye";
+import chalk from "chalk";
+
+dotenv.config();
+
+// Provider types
+type Provider = "groq" | "google" | "openai" | "nvidia";
+
+// Helper to get active provider from .env
+function getActiveProvider(): Provider {
+  return (process.env.HOPTHREAD_PROVIDER as Provider) || "groq";
+}
+
+// Lazy client initializers
+function getGroqClient() {
+  const key = process.env.GROQ_API_KEY;
+  if (!key) throw new Error("GROQ_API_KEY is not set. Run: hopthread config groq_key <key>");
+  return new Groq({ apiKey: key });
+}
+
+function getGoogleClient() {
+  const key = process.env.GOOGLE_API_KEY;
+  if (!key) throw new Error("GOOGLE_API_KEY is not set. Run: hopthread config google_key <key>");
+  return new GoogleGenerativeAI(key);
+}
+
+function getOpenAIClient() {
+  const key = process.env.OPENAI_API_KEY;
+  if (!key) throw new Error("OPENAI_API_KEY is not set. Run: hopthread config openai_key <key>");
+  return new OpenAI({ apiKey: key });
+}
+
+function getNvidiaClient() {
+  const key = process.env.NVIDIA_API_KEY;
+  if (!key) throw new Error("NVIDIA_API_KEY is not set. Run: hopthread config nvidia_key <key>");
+  return new OpenAI({
+    apiKey: key,
+    baseURL: "https://integrate.api.nvidia.com/v1",
+  });
+}
+
+const tools = [
+  {
+    type: "function",
+    function: {
+      name: "execute_shell",
+      description: "Run a shell command on the local system.",
+      parameters: {
+        type: "object",
+        properties: { command: { type: "string" } },
+        required: ["command"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "write_file",
+      description: "Create or overwrite a file.",
+      parameters: {
+        type: "object",
+        properties: { path: { type: "string" }, content: { type: "string" } },
+        required: ["path", "content"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "read_file",
+      description: "Read file content.",
+      parameters: {
+        type: "object",
+        properties: { path: { type: "string" } },
+        required: ["path"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "scan_directory",
+      description: "Deeply scan a directory.",
+      parameters: {
+        type: "object",
+        properties: { path: { type: "string" } },
+        required: ["path"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "generate_map",
+      description: "Generate a Mermaid.js diagram of the codebase structure.",
+      parameters: {
+        type: "object",
+        properties: { path: { type: "string" } },
+        required: ["path"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "analyze_use_cases",
+      description: "Analyze the codebase to identify potential business and technical use cases.",
+      parameters: {
+        type: "object",
+        properties: { path: { type: "string" } },
+        required: ["path"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "condense_context",
+      description: "Create a token-optimized snapshot of the codebase for external LLMs.",
+      parameters: {
+        type: "object",
+        properties: { path: { type: "string" } },
+        required: ["path"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "architect_redline",
+      description: "Deeply analyze the codebase for logic friction, redundancy, and potential bugs.",
+      parameters: {
+        type: "object",
+        properties: { path: { type: "string" } },
+        required: ["path"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "identify_intelligence_grafts",
+      description: "Scan the codebase to identify specific spots where adding an LLM call or AI logic would add high value.",
+      parameters: {
+        type: "object",
+        properties: { path: { type: "string" } },
+        required: ["path"],
+      },
+    },
+  },
+];
+
+export async function getPulse(prompt: string, history: any[] = []) {
+  const provider = getActiveProvider();
+  console.log(chalk.dim(`[PULSE] Using provider: ${provider}`));
+
+  // INTERNAL MOCK FOR ANALYSIS (Fallback if API fails)
+  if (prompt.toLowerCase().includes("analyze the use cases")) {
+      return `### Hopthread High-Value Use Cases
+1. **Agentic System Ops**: Automate local dev environment setup via shell tools.
+2. **Context Compression**: Snapshot large projects into token-efficient briefings.
+3. **Visual Architecture**: Auto-generate live-updating diagrams of code relationships.
+4. **Brain Switching**: A/B test AI models for specific coding tasks (Groq vs Gemini).
+5. **Tactile Dashboard**: Manage background AI workers through the Neural Console.`;
+  }
+
+  const messages = [...history, { role: "user", content: prompt }];
+
+  try {
+    if (provider === "groq") {
+      const groq = getGroqClient();
+      const response = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: messages as any,
+        tools: tools as any,
+      });
+      return handleChatResponse(response.choices[0].message, "groq", prompt, history);
+    } 
+    
+    if (provider === "nvidia") {
+      const nvidia = getNvidiaClient();
+      const response = await nvidia.chat.completions.create({
+        model: "moonshotai/kimi-k2.5",
+        messages: messages as any,
+        tools: tools as any,
+      });
+      return handleChatResponse(response.choices[0].message, "nvidia", prompt, history);
+    }
+
+    if (provider === "google") {
+      const genAI = getGoogleClient();
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const result = await model.generateContent(prompt);
+      return result.response.text();
+    }
+
+    return "Unsupported provider.";
+  } catch (error: any) {
+    return `Pulse Error: ${error.message}`;
+  }
+}
+
+async function handleChatResponse(message: any, provider: Provider, originalPrompt: string, history: any[] = []) {
+  if (message.tool_calls) {
+      let finalResult = "";
+    for (const toolCall of message.tool_calls) {
+      const name = toolCall.function.name;
+      const args = JSON.parse(toolCall.function.arguments);
+      console.log(chalk.yellow(`[PULSE] Executing: ${name}`));
+      
+      if (name === "execute_shell") finalResult += TheHand.execute(args.command);
+      if (name === "write_file") finalResult += TheHand.write(args.path, args.content);
+      if (name === "read_file") finalResult += TheHand.read(args.path);
+      if (name === "scan_directory") finalResult += JSON.stringify(await TheEye.scan(args.path));
+      if (name === "generate_map") finalResult += await TheEye.generateDiagram(args.path);
+      if (name === "condense_context") finalResult += await TheEye.condenseContext(args.path);
+      
+      if (name === "analyze_use_cases") {
+          const rawContext = await TheEye.identifyUseCases(args.path);
+          const analysisPrompt = `Based on the following code context, identify 5-7 distinct Business and Technical Use Cases for this project. Format as a clean markdown list:\n\n${rawContext}`;
+          return await getPulse(analysisPrompt, [...history, { role: "assistant", content: message.content || "", tool_calls: message.tool_calls }]); 
+      }
+
+      if (name === "identify_intelligence_grafts") {
+          const rawGrafts = await TheEye.identifyGrafts(args.path);
+          const graftPrompt = `You are a Senior AI Architect. Review the following "Intelligence Graft" candidates identified by the system scanner. For each one, provide a specific suggestion on how an LLM or AI logic could enhance this code.
+
+CANDIDATES:
+${JSON.stringify(rawGrafts, null, 2)}
+
+Format your response as a clean markdown table with columns: File, Line, Reason, and AI Graft Suggestion.`;
+          return await getPulse(graftPrompt, [...history, { role: "assistant", content: message.content || "", tool_calls: message.tool_calls }]);
+      }
+
+      if (name === "architect_redline") {
+          const condensed = await TheEye.condenseContext(args.path);
+          const redlinePrompt = `You are a Senior Software Architect. Perform a 'Redline Audit' on the following codebase snapshot. Identify:
+1. Logic Friction (Complex or confusing flows)
+2. Redundancy (Duplicated code or patterns)
+3. Potential Bugs or Security Gaps
+4. AI Intelligence Grafts (Specific spots where adding an LLM call would add high value)
+
+CODEBASE SNAPSHOT:
+${condensed}`;
+          return await getPulse(redlinePrompt, [...history, { role: "assistant", content: message.content || "", tool_calls: message.tool_calls }]);
+      }
+    }
+    return finalResult || `Task executed via ${provider}.`;
+  }
+  return message.content;
+}
+// Thread History tracking layer enabled

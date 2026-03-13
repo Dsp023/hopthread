@@ -1,0 +1,29 @@
+{
+  "name": "hopthread",
+  "module": "index.ts",
+  "bin": {
+    "hopthread": "./src/cli/loom.ts"
+  },
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@hono/node-server": "^1.19.9",
+    "@types/blessed": "^0.1.27",
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.11.0",
+    "chalk": "4.1.2",
+    "commander": "^14.0.3",
+    "dotenv": "^17.3.1",
+    "glob": "^13.0.5",
+    "groq-sdk": "^0.37.0",
+    "hono": "^4.11.10",
+    "openai": "^6.22.0"
+  }
+}
