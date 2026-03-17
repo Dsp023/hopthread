@@ -26,9 +26,11 @@ Hopthread provides dual-layered operational control:
     - **Intelligence Glow:** Visual indicators (gold nodes) for AI enhancement potential.
     - **Tactile Analysis:** Click nodes to trigger deep contextual file audits.
     - **Use Case Modal:** Instant Markdown-rendered project discovery.
+    - **Aesthetics:** Styled with Tailwind, Lucide, and GSAP.
 - **Neural TUI (Terminal):** A high-density command center for terminal-exclusive workflows.
     - **Thread Stream:** Real-time scrolling log of agent thought sequences.
     - **Codebase Tree:** Live directory exploration inside the terminal.
+    - **Blessed-Contrib:** Terminal dashboard visualization powered by Blessed-Contrib.
 
 ---
 
